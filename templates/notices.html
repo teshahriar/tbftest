@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Notice Board | The Brilliant Foundation {% endblock %}
+
+{% block extra_css %}
+<style>
+    .notice-header { 
+        background: var(--navy); 
+        color: white; 
+        padding: 60px 20px; 
+        text-align: center; 
+        border-radius: 12px;
+        margin-bottom: 40px;
+    }
+    
+    .notice-card { 
+        background: white; 
+        padding: 25px; 
+        border-radius: 12px; 
+        margin-bottom: 25px; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        border-left: 6px solid var(--navy);
+        transition: transform 0.3s ease;
+    }
+    
+    .notice-card:hover { 
+        transform: translateY(-5px); 
+    }
+    
+    .badge { 
+        display: inline-block; 
+        padding: 5px 15px; 
+        border-radius: 20px; 
+        font-size: 0.8em; 
+        font-weight: bold; 
+        background: #e7f3ff; 
+        color: var(--navy);
+        margin-bottom: 10px;
+    }
+    
+    .notice-date { 
+        color: #888; 
+        font-size: 0.9em; 
+        float: right; 
+        font-weight: 500;
+    }
+
+    .notice-content { 
+        color: #555; 
+        line-height: 1.7; 
+        margin-top: 15px;
+    }
+
+    h2.section-title {
+        color: var(--navy);
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    @media (max-width: 600px) {
+        .notice-date { float: none; display: block; margin-bottom: 5px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="notice-header">
+    <h1 style="margin: 0; font-size: 2.5rem;">Official Notice Board</h1>
+    <p style="opacity: 0.9; margin-top: 10px;">Stay updated with the latest admission announcements and schedules</p>
+</div>
+
+<div style="max-width: 900px; margin: auto;">
+    <h2 class="section-title">Latest Updates</h2>
+    
+    {% if notices %}
+        {% for notice in notices %}
+        <div class="notice-card">
+            <span class="notice-date">{{ notice.date }}</span>
+            <span class="badge">{{ notice.category }}</span>
+            <h3 style="margin: 10px 0; color: #333;">{{ notice.title }}</h3>
+            <p class="notice-content">{{ notice.content }}</p>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="card" style="text-align: center; padding: 50px;">
+            <p style="color: #888;">No active notices at the moment. Please check back later.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard | The Brilliant Foundation {% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Dashboard specific layout overrides */
+    .main-grid { 
+        display: grid; 
+        grid-template-columns: 320px 1fr; 
+        gap: 25px; 
+        margin-top: 20px;
+    }
+    
+    /* Sidebar Profile Card */
+    .profile-card { 
+        background: white; 
+        padding: 30px; 
+        border-radius: 15px; 
+        text-align: center; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+    }
+    
+    .profile-img { 
+        width: 160px; 
+        height: 160px; 
+        border-radius: 50%; 
+        object-fit: cover; 
+        border: 5px solid #f8f9fa; 
+        margin-bottom: 15px; 
+    }
+    
+    .student-name { 
+        color: var(--navy); 
+        font-size: 1.4em; 
+        margin: 10px 0; 
+        font-weight: bold;
+    }
+    
+    /* Verification Status Styling */
+    .status-box { 
+        padding: 12px; 
+        border-radius: 8px; 
+        font-weight: bold; 
+        margin: 20px 0; 
+        font-size: 0.85em; 
+        letter-spacing: 0.5px;
+    }
+    
+    .status-pending { 
+        background: #fff3cd; 
+        color: #856404; 
+        border: 1px solid #ffeeba; 
+    }
+    
+    .status-verified { 
+        background: #d4edda; 
+        color: #155724; 
+        border: 1px solid #c3e6cb; 
+    }
+
+    .btn-download { 
+        display: block; 
+        background: #28a745; 
+        color: white; 
+        text-align: center; 
+        padding: 14px; 
+        text-decoration: none; 
+        border-radius: 8px; 
+        font-weight: bold; 
+        transition: 0.3s; 
+    }
+    
+    .btn-download:hover { 
+        background: #218838; 
+        transform: translateY(-2px); 
+    }
+    
+    .btn-locked { 
+        background: #dee2e6; 
+        color: #6c757d; 
+        cursor: not-allowed; 
+    }
+
+    /* Information Table */
+    .details-card { 
+        background: white; 
+        padding: 35px; 
+        border-radius: 15px; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+    }
+    
+    .details-card h2 { 
+        color: var(--navy); 
+        border-bottom: 2px solid #f8f9fa; 
+        padding-bottom: 15px; 
+        margin-top: 0; 
+    }
+    
+    .info-table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        margin-top: 10px; 
+    }
+    
+    .info-table td { 
+        padding: 18px 10px; 
+        border-bottom: 1px solid #f1f1f1; 
+        font-size: 1rem; 
+    }
+    
+    .label { color: #666; font-weight: bold; width: 35%; }
+    .value { color: #333; }
+
+    .help-box {
+        margin-top: 30px; 
+        background: #e7f3ff; 
+        padding: 15px; 
+        border-radius: 8px; 
+        color: #004085; 
+        font-size: 0.9em;
+        border-left: 4px solid #007bff;
+    }
+
+    @media (max-width: 850px) {
+        .main-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-grid">
+    <div class="profile-side">
+        <div class="profile-card">
+            <img src="{{ url_for('static', filename='uploads/' + user.photo) }}" class="profile-img" alt="Student Photo">
+            <div class="student-name">{{ user.name }}</div>
+            <p style="color: #888; font-weight: 500;">Roll No: {{ user.roll_no }}</p>
+
+            {% if user.status == 'Verified' %}
+                <div class="status-box status-verified">✓ APPLICATION VERIFIED</div>
+                <a href="/download_admit" class="btn-download">Download Admit Card</a>
+            {% else %}
+                <div class="status-box status-pending">⚠ PENDING VERIFICATION</div>
+                <a href="#" class="btn-download btn-locked">Admit Card Locked</a>
+                <p style="font-size: 0.8em; color: #777; margin-top: 12px; line-height: 1.4;">
+                    Your admit card will be available once the administrator verifies your documents.
+                </p>
+            {% endif %}
+            
+            <hr style="margin: 25px 0; border: 0; border-top: 1px solid #eee;">
+            <a href="/logout" style="color: #dc3545; text-decoration: none; font-size: 0.9em; font-weight: bold;">Logout of Portal</a>
+        </div>
+    </div>
+
+    <div class="details-side">
+        <div class="details-card">
+            <h2>Application Overview</h2>
+            <table class="info-table">
+                <tr>
+                    <td class="label">Registration ID</td>
+                    <td class="value">#{{ user.reg_no }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Father's Name</td>
+                    <td class="value">{{ user.father_name }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Mother's Name</td>
+                    <td class="value">{{ user.mother_name }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Previous School</td>
+                    <td class="value">{{ user.school }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Class Applied</td>
+                    <td class="value">{{ user.class }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Application Date</td>
+                    <td class="value">Session 2026-27</td>
+                </tr>
+            </table>
+            
+            <div class="help-box">
+                <strong>Need Help?</strong> If you find any discrepancies in your data, please contact the support desk with your Registration ID.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

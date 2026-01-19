@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Student Login | TBF Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Centers the login card in the middle of the screen */
+    .login-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 70vh;
+    }
+
+    .login-card { 
+        background: white; 
+        padding: 40px; 
+        border-radius: 12px; 
+        width: 100%;
+        max-width: 400px; 
+        text-align: center; 
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        border-top: 5px solid var(--gold);
+    }
+
+    .login-card h2 {
+        color: var(--navy);
+        margin-bottom: 25px;
+        font-size: 1.8rem;
+    }
+
+    .form-group {
+        text-align: left;
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        font-weight: bold;
+        color: #555;
+        font-size: 0.9rem;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    input { 
+        width: 100%; 
+        padding: 12px; 
+        border: 1px solid #ddd; 
+        border-radius: 6px; 
+        box-sizing: border-box; 
+        font-size: 1rem;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: var(--navy);
+        box-shadow: 0 0 5px rgba(0,51,102,0.2);
+    }
+
+    .btn-login { 
+        width: 100%; 
+        padding: 14px; 
+        background: var(--navy); 
+        border: none; 
+        border-radius: 6px;
+        font-weight: bold; 
+        cursor: pointer; 
+        color: white; 
+        font-size: 1rem;
+        margin-top: 10px;
+        transition: 0.3s;
+    }
+
+    .btn-login:hover { 
+        background: #002244;
+        transform: translateY(-2px);
+    }
+
+    .login-footer {
+        margin-top: 20px;
+        font-size: 0.85rem;
+        color: #777;
+    }
+
+    .login-footer a {
+        color: var(--navy);
+        text-decoration: none;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-wrapper">
+    <div class="login-card">
+        <h2>Student Login</h2>
+        
+        <form action="/login" method="POST">
+            <div class="form-group">
+                <label>Roll Number</label>
+                <input type="text" name="roll" placeholder="Enter 5-digit Roll No." required>
+            </div>
+            
+            <div class="form-group">
+                <label>Portal Password</label>
+                <input type="password" name="password" placeholder="Enter your password" required>
+            </div>
+            
+            <button type="submit" class="btn-login">Access Dashboard</button>
+        </form>
+
+        <div class="login-footer">
+            Don't have an account? <a href="/apply">Apply Now</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
