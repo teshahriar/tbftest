@@ -29,8 +29,8 @@ body {
 
 /* --- Navbar: Compact & Fixed --- */
 nav { 
-    background: var(--navy); 
-    color: white; 
+    background: white; 
+    color: rgb(0, 0, 0); 
     padding: 0 5%; 
     display: flex; 
     justify-content: space-between; 
@@ -60,7 +60,7 @@ nav {
     font-size: 1rem; 
     font-weight: 800; 
     display: block; 
-    color: white; 
+    color: rgb(0, 0, 0); 
     line-height: 1.1;
 }
 
@@ -74,7 +74,7 @@ nav {
 .nav-links { display: flex; align-items: center; }
 
 .nav-links a { 
-    color: white; 
+    color: rgb(0, 0, 0); 
     text-decoration: none; 
     margin-left: 15px; 
     font-weight: 600; 
