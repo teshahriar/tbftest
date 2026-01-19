@@ -1,25 +1,26 @@
 {% extends "base.html" %}
 
-{% block title %}Student Login | TBF Portal{% endblock %}
+{% block title %}Student Login | Elite Academy{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* Centers the login card in the middle of the screen */
+    /* Centers the login card on the screen */
     .login-wrapper {
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: 70vh;
+        min-height: 75vh;
+        padding: 20px;
     }
 
     .login-card { 
-        background: white; 
+        background: var(--white); 
         padding: 40px; 
         border-radius: 12px; 
         width: 100%;
         max-width: 400px; 
         text-align: center; 
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
         border-top: 5px solid var(--gold);
     }
 
@@ -27,34 +28,51 @@
         color: var(--navy);
         margin-bottom: 25px;
         font-size: 1.8rem;
+        font-weight: 700;
+    }
+
+    /* Flash Message Styling */
+    .alert-danger {
+        background: #fff5f5;
+        color: #c53030;
+        border: 1px solid #feb2b2;
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
     .form-group {
         text-align: left;
-        margin-bottom: 15px;
+        margin-bottom: 20px;
     }
 
     .form-group label {
-        font-weight: bold;
-        color: #555;
-        font-size: 0.9rem;
         display: block;
-        margin-bottom: 5px;
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
     }
 
-    input { 
+    .login-card input { 
         width: 100%; 
-        padding: 12px; 
-        border: 1px solid #ddd; 
+        padding: 12px 15px; 
+        border: 1px solid #e2e8f0; 
         border-radius: 6px; 
         box-sizing: border-box; 
         font-size: 1rem;
+        transition: all 0.3s ease;
     }
 
-    input:focus {
+    .login-card input:focus {
         outline: none;
         border-color: var(--navy);
-        box-shadow: 0 0 5px rgba(0,51,102,0.2);
+        box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
     }
 
     .btn-login { 
@@ -68,24 +86,23 @@
         color: white; 
         font-size: 1rem;
         margin-top: 10px;
-        transition: 0.3s;
+        transition: transform 0.2s, background 0.3s;
     }
 
     .btn-login:hover { 
         background: #002244;
-        transform: translateY(-2px);
+        transform: translateY(-1px);
     }
 
-    .login-footer {
-        margin-top: 20px;
-        font-size: 0.85rem;
-        color: #777;
+    .btn-login:active {
+        transform: translateY(0);
     }
 
-    .login-footer a {
-        color: var(--navy);
-        text-decoration: none;
-        font-weight: bold;
+    /* Responsive adjustments */
+    @media (max-width: 480px) {
+        .login-card {
+            padding: 30px 20px;
+        }
     }
 </style>
 {% endblock %}
@@ -94,7 +111,18 @@
 <div class="login-wrapper">
     <div class="login-card">
         <h2>Student Login</h2>
-        
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert-danger">
+                <span>⚠️</span>
+                <span>{{ message }}</span>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
         <form action="/login" method="POST">
             <div class="form-group">
                 <label>Roll Number</label>
@@ -108,10 +136,10 @@
             
             <button type="submit" class="btn-login">Access Dashboard</button>
         </form>
-
-        <div class="login-footer">
-            Don't have an account? <a href="/apply">Apply Now</a>
-        </div>
+        
+        <p style="margin-top: 25px; font-size: 0.85rem; color: #718096;">
+            New student? <a href="/apply" style="color: var(--navy); font-weight: bold; text-decoration: none;">Apply Here</a>
+        </p>
     </div>
 </div>
 {% endblock %}
