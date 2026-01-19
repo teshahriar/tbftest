@@ -1,134 +1,122 @@
 {% extends "base.html" %}
 
-{% block title %}Apply Now | The Brilliant Foundation {% endblock %}
-
 {% block extra_css %}
 <style>
-    .form-container { 
-        max-width: 650px; 
-        background: white; 
-        margin: 20px auto; 
-        padding: 40px; 
-        border-radius: 12px; 
-        box-shadow: 0 8px 25px rgba(0,0,0,0.08); 
-    }
+    .form-card { max-width: 800px; margin: 30px auto; background: #fff; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); overflow: hidden; }
+    .form-header { background: var(--navy); color: white; padding: 20px; text-align: center; }
+    .form-body { padding: 30px; }
     
-    h2 { 
-        color: var(--navy); 
-        text-align: center; 
-        margin-top: 0;
-        border-bottom: 3px solid var(--gold); 
-        padding-bottom: 15px;
-        margin-bottom: 30px;
-    }
-    
-    .grid { 
-        display: grid; 
-        grid-template-columns: 1fr 1fr; 
-        gap: 20px; 
-    }
-    
-    .form-group { margin-bottom: 20px; }
-    
-    label { 
-        display: block;
-        font-weight: bold; 
-        font-size: 0.95em; 
-        color: #444; 
-        margin-bottom: 8px;
-    }
-    
-    input, select { 
-        width: 100%; 
-        padding: 12px; 
-        border: 1px solid #ddd; 
-        border-radius: 6px; 
-        box-sizing: border-box; 
-        font-size: 1rem;
-        transition: border-color 0.3s;
-    }
-    
-    input:focus {
-        border-color: var(--navy);
-        outline: none;
-    }
+    /* Grid layout */
+    .grid-form { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .full-width { grid-column: span 2; }
+    .form-group { display: flex; flex-direction: column; margin-bottom: 15px; text-align: left; }
+    .form-group label { font-weight: bold; margin-bottom: 5px; color: var(--navy); }
+    .form-group input, .form-group select { padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
 
-    .file-input {
-        background: #f9f9f9;
-        padding: 10px;
-    }
-
-    .submit-btn { 
-        width: 100%; 
-        padding: 16px; 
-        background: var(--navy); 
-        color: white; 
-        border: none; 
-        border-radius: 6px; 
-        cursor: pointer; 
-        font-size: 1.1rem; 
-        font-weight: bold;
-        margin-top: 20px;
-        transition: background 0.3s;
-    }
+    /* Sections */
+    #preview-section { display: none; background: #f9f9f9; padding: 20px; border-radius: 10px; border: 2px dashed var(--gold); }
+    .preview-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
     
-    .submit-btn:hover { 
-        background: #002244; 
-    }
-
-    @media (max-width: 600px) {
-        .grid { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 600px) { .grid-form { grid-template-columns: 1fr; } .full-width { grid-column: span 1; } }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="form-container">
-    <h2>Student Registration</h2>
-    
-    <form action="/apply" method="POST" enctype="multipart/form-data">
-        <div class="form-group">
-            <label>Student Full Name</label>
-            <input type="text" name="name" placeholder="Enter your full name" required>
-        </div>
-        
-        <div class="grid">
-            <div class="form-group">
-                <label>Father's Name</label>
-                <input type="text" name="father_name" required>
+<div class="form-card">
+    <div class="form-header">
+        <h2>Admission Form 2026</h2>
+    </div>
+    <div class="form-body">
+        <form id="applyForm" method="POST" enctype="multipart/form-data">
+            
+            <div id="input-section">
+                <div class="grid-form">
+                    <div class="form-group">
+                        <label>Student Name</label>
+                        <input type="text" name="name" id="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Class</label>
+                        <select name="class" id="class">
+                            <option value="6">Class 6</option>
+                            <option value="7">Class 7</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Father's Name</label>
+                        <input type="text" name="father_name" id="father_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Mother's Name</label>
+                        <input type="text" name="mother_name" id="mother_name" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>School Name</label>
+                        <input type="text" name="school" id="school" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" name="password" id="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Photo</label>
+                        <input type="file" name="photo" id="photo" accept="image/*" onchange="previewImg(event)">
+                    </div>
+                </div>
+                <button type="button" class="btn btn-gold" onclick="showPreview()" style="width:100%; margin-top:20px;">Review Details</button>
             </div>
-            <div class="form-group">
-                <label>Mother's Name</label>
-                <input type="text" name="mother_name" required>
+
+            <div id="preview-section">
+                <h3 style="color: var(--navy);">Verify Information</h3>
+                <div style="text-align: center;">
+                    <img id="img-display" style="width:100px; height:120px; object-fit: cover; border: 1px solid #ccc; margin-bottom: 15px;">
+                </div>
+                <div id="preview-data"></div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="button" class="btn" onclick="hidePreview()" style="flex:1; background:#888; color:#fff;">Edit</button>
+                    <button type="submit" class="btn btn-primary" style="flex:2;">Confirm & Submit Now</button>
+                </div>
             </div>
-        </div>
-
-        <div class="grid">
-            <div class="form-group">
-                <label>Previous School</label>
-                <input type="text" name="school" required>
-            </div>
-            <div class="form-group">
-                <label>Applying for Class</label>
-                <select name="class">
-                    <option value="Class 9">Class 9</option>
-                    <option value="Class 10">Class 10</option>
-                    <option value="Class 11">Class 11</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>Upload Passport Photo (Required for Admit Card)</label>
-            <input type="file" name="photo" accept="image/*" class="file-input" required>
-        </div>
-
-        <div class="form-group">
-            <label>Create Portal Password</label>
-            <input type="password" name="password" placeholder="Min 6 characters" required>
-        </div>
-
-        <button type="submit" class="submit-btn">Submit Application</button>
-    </form>
+        </form>
+    </div>
 </div>
+
+
+
+<script>
+    function previewImg(event) {
+        var reader = new FileReader();
+        reader.onload = function(){
+            document.getElementById('img-display').src = reader.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    function showPreview() {
+        const name = document.getElementById('name').value;
+        const f_name = document.getElementById('father_name').value;
+        const school = document.getElementById('school').value;
+
+        // Basic validation before allowing preview
+        if(!name || !f_name || !school) {
+            alert("Please fill in all required fields.");
+            return;
+        }
+
+        let html = `
+            <div class="preview-item"><strong>Name:</strong> <span>${name}</span></div>
+            <div class="preview-item"><strong>Father:</strong> <span>${f_name}</span></div>
+            <div class="preview-item"><strong>School:</strong> <span>${school}</span></div>
+        `;
+        document.getElementById('preview-data').innerHTML = html;
+        document.getElementById('input-section').style.display = 'none';
+        document.getElementById('preview-section').style.display = 'block';
+    }
+
+    function hidePreview() {
+        document.getElementById('input-section').style.display = 'block';
+        document.getElementById('preview-section').style.display = 'none';
+    }
+</script>
 {% endblock %}
