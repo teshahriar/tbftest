@@ -1,12 +1,13 @@
 import os
 import random
 import string
-from flask import Flask, render_template, request, redirect, url_for, session, send_file
+from flask import Flask, render_template, request, redirect, url_for, session, send_file, flash
 from flask_pymongo import PyMongo
 from werkzeug.utils import secure_filename
 from reportlab.pdfgen import canvas
 from io import BytesIO
 from bson.objectid import ObjectId
+from flask import render_template
 
 app = Flask(__name__)
 app.secret_key = "admission_portal_2026_secure_key"
@@ -32,7 +33,6 @@ def generate_numbers():
 @app.route('/')
 def landing():
     return render_template('landing.html')
-
 
 @app.route('/admin/notices')
 def admin_notices():
@@ -66,14 +66,18 @@ def notices():
 @app.route('/apply', methods=['GET', 'POST'])
 def apply():
     if request.method == 'POST':
+        # 1. Generate Numbers
         reg_no, roll_no = generate_numbers()
-        file = request.files['photo']
-        if file:
+        
+        # 2. Handle File Upload
+        file = request.files.get('photo')
+        if file and file.filename != '':
             filename = secure_filename(f"{roll_no}_{file.filename}")
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         else:
             filename = "default.png"
 
+        # 3. Create Student Document
         student_data = {
             "name": request.form.get('name'),
             "father_name": request.form.get('father_name'),
@@ -84,10 +88,15 @@ def apply():
             "reg_no": reg_no,
             "roll_no": roll_no,
             "photo": filename,
-            "status": "Pending"  # Default status
+            "status": "Pending"
         }
+        
+        # 4. Database Insert
         mongo.db.students.insert_one(student_data)
+        
+        # 5. Success Redirect
         return render_template('success.html', reg=reg_no, roll=roll_no)
+
     return render_template('apply.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -95,18 +104,70 @@ def login():
     if request.method == 'POST':
         roll = request.form.get('roll')
         pw = request.form.get('password')
+        
         user = mongo.db.students.find_one({"roll_no": roll, "password": pw})
+        
         if user:
             session['user_id'] = str(user['_id'])
             return redirect(url_for('dashboard'))
-        return "<h3>Invalid Credentials</h3><a href='/login'>Try Again</a>"
+        else:
+            # This "flashes" the message to the next page load
+            flash("Invalid Roll Number or Password. Please check your credentials and try again.", "danger")
+            return redirect(url_for('login'))
+            
     return render_template('login.html')
 
-@app.route('/dashboard')
+@app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
-    if 'user_id' not in session: return redirect(url_for('login'))
-    user = mongo.db.students.find_one({"_id": ObjectId(session['user_id'])})
-    return render_template('dashboard.html', user=user)
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    # Fetch student data
+    student = mongo.db.students.find_one({"_id": ObjectId(session['user_id'])})
+    
+    # Logic: If 'verification' key doesn't exist, default to False
+    is_verified = student.get('verification', False)
+
+    if request.method == 'POST':
+        tran_id = request.form.get('tran_id')
+        # When student submits ID, we ensure verification stays/is False
+        mongo.db.students.update_one(
+            {"_id": ObjectId(session['user_id'])},
+            {"$set": {"tran_id": tran_id, "verification": False}}
+        )
+        flash("Transaction ID submitted! Waiting for approval.", "info")
+        return redirect(url_for('dashboard'))
+
+    return render_template('dashboard.html', student=student, is_verified=is_verified)
+
+# Type this in browser: /admin/approve/12345 (where 12345 is the Roll No)
+@app.route('/admin/approve/<roll>')
+def approve_student(roll):
+    result = mongo.db.students.update_one(
+        {"roll_no": roll},
+        {"$set": {"verification": True}}
+    )
+    
+    if result.modified_count > 0:
+        return f"<h1>Success!</h1> Student with Roll {roll} is now VERIFIED."
+    else:
+        return "<h1>Error!</h1> Roll number not found.", 404
+
+@app.route('/download-slip')
+def download_slip():
+    # 1. Security: Must be logged in
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    # 2. Fetch student from database
+    student = mongo.db.students.find_one({"_id": ObjectId(session['user_id'])})
+    
+    # 3. CRITICAL CHECK: Does verification == True?
+    if not student or student.get('verification') != True:
+        return "<h3>Access Denied: Your account is not verified yet.</h3>", 403
+
+    # 4. If verified, show the printable slip
+    return render_template('payment_slip.html', student=student)
 
 @app.route('/download_admit')
 def download_admit():
@@ -161,6 +222,35 @@ def download_admit():
 def logout():
     session.clear()
     return redirect(url_for('landing'))
+
+@app.route('/contact', methods=['GET', 'POST'])
+def contact():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        message = request.form.get('message')
+        return render_template('contact.html', success=True)
+    return render_template('contact.html')
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('error.html', 
+        code=404, 
+        message="Page Not Found", 
+        description="The page you are looking for might have been removed, had its name changed, or is temporarily unavailable."), 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('error.html', 
+        code=500, 
+        message="Internal Server Error", 
+        description="Oops! Something went wrong on our end. Please try again later or contact support."), 500
+
+@app.errorhandler(403)
+def forbidden(e):
+    return render_template('error.html', 
+        code=403, 
+        message="Access Forbidden", 
+        description="You don't have permission to access this page. Please make sure you are logged in."), 403
 
 if __name__ == '__main__':
     app.run(debug=True)
