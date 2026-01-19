@@ -1,0 +1,62 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+<div style="padding: 20px;">
+    <div style="display: flex; gap: 20px; margin-bottom: 30px;">
+        <div style="flex:1; background: #2c3e50; color: white; padding: 20px; border-radius: 8px;">
+            <h3 style="margin:0;">{{ stats.total }}</h3>
+            <p style="margin:0; font-size: 0.9rem;">Total Registrations</p>
+        </div>
+        <div style="flex:1; background: #ED1C24; color: white; padding: 20px; border-radius: 8px;">
+            <h3 style="margin:0;">{{ stats.pending }}</h3>
+            <p style="margin:0; font-size: 0.9rem;">Pending Approval</p>
+        </div>
+        <div style="flex:1; background: #00B65E; color: white; padding: 20px; border-radius: 8px;">
+            <h3 style="margin:0;">{{ stats.verified }}</h3>
+            <p style="margin:0; font-size: 0.9rem;">Verified/Admit Issued</p>
+        </div>
+    </div>
+
+    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <h3 style="margin-top:0;">Student List</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="text-align: left; background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                    <th style="padding: 12px;">Roll No</th>
+                    <th style="padding: 12px;">Student Name</th>
+                    <th style="padding: 12px;">TxID</th>
+                    <th style="padding: 12px;">Status</th>
+                    <th style="padding: 12px;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in students %}
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 12px;">{{ s.roll_no }}</td>
+                    <td style="padding: 12px;">{{ s.name }}</td>
+                    <td style="padding: 12px;"><code>{{ s.tran_id or 'No ID' }}</code></td>
+                    <td style="padding: 12px;">
+                        <span style="padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; background: {% if s.status == 'Verified' %}#d4edda;color:#155724{% else %}#f8d7da;color:#721c24{% endif %};">
+                            {{ s.status }}
+                        </span>
+                    </td>
+                    <td style="padding: 12px;">
+                        {% if s.status != 'Verified' %}
+                        <a href="{{ url_for('approve_student', roll=s.roll_no) }}" style="color: #00B65E; text-decoration: none; font-weight: bold;">Verify Student</a>
+                        {% else %}
+                        <span style="color: #6c757d;">Complete</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 40px; color: #999;">
+                        No students found in the database.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

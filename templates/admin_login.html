@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width: 400px; margin: 100px auto; background: #fff; padding: 30px; border-radius: 8px; border-top: 5px solid #ED1C24; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+    <h2 style="text-align: center; color: #4A5D68;">Admin Access</h2>
+    <form method="POST">
+        <div style="margin-bottom: 15px;">
+            <label>Username</label>
+            <input type="text" name="username" class="form-control" required>
+        </div>
+        <div style="margin-bottom: 20px;">
+            <label>Password</label>
+            <input type="password" name="password" class="form-control" required>
+        </div>
+        <button type="submit" class="btn-next" style="width: 100%; border-radius: 4px;">Login as Admin</button>
+    </form>
+</div>
+{% endblock %}

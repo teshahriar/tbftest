@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/SsLDX6WZ/Screenshot-2026-01-20-020601-removebg-preview.png">
+    <title>{% block title %}The Brilliants Foundation{% endblock %}</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <nav>
+        <a href="/" class="logo-container">
+            <img src="https://i.postimg.cc/SsLDX6WZ/Screenshot-2026-01-20-020601-removebg-preview.png" alt="Logo" class="logo-img">
+            <div class="logo-text">
+                <span class="main-title">THE BRILLIANTS FOUNDATION</span>
+                <span class="sub-title">BOGURA | ESTD-2002</span>
+            </div>
+        </a>
+        
+        <div class="menu-toggle" id="mobile-menu">
+            <span></span><span></span><span></span>
+        </div>
+
+        <div class="nav-links" id="nav-list">
+            <a href="/">Home</a>
+            <a href="/notices">Notices</a>
+            <a href="/apply">Apply</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/login" style="background: var(--gold); color: var(--navy);">Login</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p><strong>THE BRILLIANTS FOUNDATION, BOGURA</strong></p>
+        <p>&copy; 2026 Admission Portal. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        const menuToggle = document.getElementById('mobile-menu');
+        const navList = document.getElementById('nav-list');
+
+        menuToggle.addEventListener('click', () => {
+            navList.classList.toggle('active');
+            // Animate hamburger to X
+            const spans = menuToggle.querySelectorAll('span');
+            spans[0].style.transform = navList.classList.contains('active') ? 'rotate(45deg) translate(6px, 6px)' : 'none';
+            spans[1].style.opacity = navList.classList.contains('active') ? '0' : '1';
+            spans[2].style.transform = navList.classList.contains('active') ? 'rotate(-45deg) translate(7px, -7px)' : 'none';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Slip - {{ student.roll_no }}</title>
+    <style>
+        body { font-family: 'Helvetica', sans-serif; padding: 50px; color: #333; }
+        .receipt-card { 
+            border: 2px solid #333; 
+            padding: 30px; 
+            width: 700px; 
+            margin: auto; 
+            position: relative;
+        }
+        .header { text-align: center; border-bottom: 2px solid #333; margin-bottom: 20px; padding-bottom: 10px; }
+        .receipt-row { display: flex; justify-content: space-between; margin: 15px 0; font-size: 1.1rem; }
+        .label { font-weight: bold; color: #555; }
+        .verified-stamp { 
+            position: absolute; 
+            top: 100px; 
+            right: 50px; 
+            border: 4px solid #28a745; 
+            color: #28a745; 
+            padding: 10px; 
+            font-weight: bold; 
+            transform: rotate(-15deg);
+            border-radius: 10px;
+            font-size: 1.5rem;
+        }
+        .btn-print { 
+            background: #003366; 
+            color: white; 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin-top: 20px;
+        }
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body>
+
+    <div class="receipt-card">
+        <div class="verified-stamp">VERIFIED</div>
+        
+        <div class="header">
+            <h1 style="margin: 0;">The Brillant Foundation</h1>
+            <p style="margin: 5px;">Admission Session: 2026-2027</p>
+            <p><strong>OFFICIAL PAYMENT SLIP</strong></p>
+        </div>
+
+        <div class="receipt-row">
+            <span class="label">Student Name:</span>
+            <span>{{ student.name }}</span>
+        </div>
+        <div class="receipt-row">
+            <span class="label">Roll Number:</span>
+            <span>{{ student.roll_no }}</span>
+        </div>
+        <div class="receipt-row">
+            <span class="label">Registration ID:</span>
+            <span>{{ student.reg_no }}</span>
+        </div>
+        <div class="receipt-row">
+            <span class="label">Class:</span>
+            <span>{{ student.class }}</span>
+        </div>
+        <div class="receipt-row">
+            <span class="label">Transaction ID:</span>
+            <span>{{ student.tran_id }}</span>
+        </div>
+        <div class="receipt-row" style="border-top: 1px solid #eee; padding-top: 10px;">
+            <span class="label">Total Amount:</span>
+            <span>500.00 BDT</span>
+        </div>
+
+        <div style="margin-top: 50px; display: flex; justify-content: space-between;">
+            <div style="text-align: center; width: 150px;">
+                <hr style="border: 0; border-top: 1px solid #000;">
+                <p>Student Signature</p>
+            </div>
+            <div style="text-align: center; width: 150px;">
+                <hr style="border: 0; border-top: 1px solid #000;">
+                <p>Admin Authority</p>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align: center;" class="no-print">
+        <button class="btn-print" onclick="window.print()">Click to Print / Save as PDF</button>
+        <p><a href="/dashboard" style="color: #666; text-decoration: none;">← Back to Dashboard</a></p>
+    </div>
+
+</body>
+</html>

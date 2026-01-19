@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <title>Admit Card - {{ student.name_en }}</title>
+    <style>
+        body { font-family: 'SolaimanLipi', Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+        .admit-container {
+            width: 800px;
+            margin: 0 auto;
+            background: #E8E5D6; /* Beige color from your image */
+            border: 2px solid #000;
+            padding: 10px;
+            position: relative;
+        }
+        .header-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .logo-img { height: 80px; }
+        .header-text { text-align: center; flex: 1; }
+        .header-text h1 { font-size: 24px; margin: 0; color: #000; }
+        .header-text h2 { font-size: 20px; margin: 5px 0; color: #000; }
+        
+        .reg-box {
+            border: 1px solid #000;
+            padding: 5px;
+            background: #fff;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .admit-title {
+            background: #fff;
+            border: 1px solid #000;
+            width: 100px;
+            margin: 0 auto 15px;
+            text-align: center;
+            font-weight: bold;
+            padding: 5px;
+        }
+
+        .main-content { display: flex; gap: 20px; }
+        .info-table { flex: 1; font-size: 15px; border-collapse: collapse; }
+        .info-table td { padding: 5px; vertical-align: top; }
+        .info-table td:first-child { width: 140px; font-weight: bold; }
+
+        .photo-area { width: 180px; text-align: center; }
+        .photo-placeholder {
+            width: 140px;
+            height: 160px;
+            border: 1px solid #000;
+            background: #fff;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .photo-placeholder img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .sig-placeholder {
+            width: 140px;
+            height: 50px;
+            border: 1px solid #000;
+            background: #fff;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .instructions {
+            border: 1px solid #000;
+            background: #fff;
+            margin-top: 20px;
+            padding: 10px;
+            min-height: 150px;
+        }
+        .instructions-header { text-align: center; font-weight: bold; text-decoration: underline; margin-bottom: 10px; }
+
+        .footer-sig {
+            margin-top: 40px;
+            text-align: right;
+            padding-right: 20px;
+        }
+
+        @media print {
+            body { background: none; padding: 0; }
+            .btn-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div style="text-align: center; margin-bottom: 10px;">
+    <button onclick="window.print()" class="btn-print" style="padding: 10px 20px; cursor: pointer;">Print Admit Card</button>
+</div>
+
+<div class="admit-container">
+    <div class="header-box">
+        <img src="https://i.postimg.cc/SsLDX6WZ/Screenshot-2026-01-20-020601-removebg-preview.png" class="logo-img">
+        <div class="header-text">
+            <h1>দ্য ব্রিলিয়ান্টস্ ফাউন্ডেশন, বগুড়া</h1>
+            <h2>The Brilliants Foundation, Bogura</h2>
+        </div>
+        <div class="reg-box">
+            জাতীয় রেজি. নং<br>
+            <strong>S-9759/09</strong>
+        </div>
+    </div>
+
+    <div class="admit-title">প্রবেশ পত্র</div>
+
+    <div class="main-content">
+        <table class="info-table">
+            <tr><td>রোল নং</td><td>: {{ student.roll_no }}</td></tr>
+            <tr><td>রেজি. নং</td><td>: {{ student.reg_no }}</td></tr>
+            <tr><td>শিক্ষার্থীর নাম</td><td>: {{ student.name_bn }} ({{ student.name_en }})</td></tr>
+            <tr><td>পিতার নাম</td><td>: {{ student.father_bn }} ({{ student.father_en }})</td></tr>
+            <tr><td>মাতার নাম</td><td>: {{ student.mother_bn }} ({{ student.mother_en }})</td></tr>
+            <tr><td>শ্রেণী</td><td>: {{ student.class }}</td></tr>
+            <tr><td>সেকশন</td><td>: {{ student.section or 'N/A' }}</td></tr>
+            <tr><td>শিক্ষা প্রতিষ্ঠান</td><td>: {{ student.institute_bn }}</td></tr>
+            <tr><td>পরীক্ষার কেন্দ্র</td><td>: {{ student.center_name }}</td></tr>
+            <tr><td>পরীক্ষার তারিখ</td><td>: ২০ জানুয়ারি, ২০২৬</td></tr>
+            <tr><td>সময়</td><td>: সকাল ১০:০০ টা</td></tr>
+        </table>
+
+        <div class="photo-area">
+            <div class="photo-placeholder">
+                <img src="{{ url_for('static', filename='uploads/' + student.photo) }}" alt="Student">
+            </div>
+            <div class="sig-placeholder">
+                <img src="{{ url_for('static', filename='uploads/' + student.signature) }}" alt="Signature" style="max-width: 90%;">
+            </div>
+        </div>
+    </div>
+
+    <div class="instructions">
+        <div class="instructions-header">নির্দেশাবলী</div>
+        <ol style="font-size: 13px;">
+            <li>পরীক্ষার্থীকে অবশ্যই পরীক্ষার অন্তত ৩০ মিনিট পূর্বে কেন্দ্রে উপস্থিত হতে হবে।</li>
+            <li>প্রবেশ পত্র ব্যতিত কোন পরীক্ষার্থীকে কেন্দ্রে প্রবেশ করতে দেয়া হবে না।</li>
+            <li>পরীক্ষা কক্ষে মোবাইল ফোন বা অন্য কোন ইলেকট্রনিক ডিভাইস নিষিদ্ধ।</li>
+        </ol>
+    </div>
+
+    <div class="footer-sig">
+        <div style="width: 150px; border-top: 1px solid #000; display: inline-block; text-align: center;">
+            <br>পরীক্ষা নিয়ন্ত্রক
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

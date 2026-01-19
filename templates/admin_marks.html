@@ -1,0 +1,84 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+<div style="max-width: 900px; margin: auto; padding: 10px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <h2 style="color: #2c3e50; margin: 0;">
+            <i class="fas fa-edit" style="margin-right: 10px; color: var(--accent-green);"></i>Student Mark Entry
+        </h2>
+        <div style="font-size: 0.9rem; color: #666;">
+            Verified Students: <strong>{{ students|length }}</strong>
+        </div>
+    </div>
+
+    <div style="background: #e1f5fe; color: #01579b; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem; border-left: 5px solid #0288d1;">
+        <i class="fas fa-info-circle"></i> Enter the score for each student and click <strong>Save</strong>. These marks will be instantly visible on the student's result search page.
+    </div>
+
+    <div style="background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="background: #f8f9fa; border-bottom: 2px solid #edf2f7;">
+                    <th style="padding: 15px; width: 100px;">Roll No</th>
+                    <th style="padding: 15px;">Student Name</th>
+                    <th style="padding: 15px; width: 150px;">Existing Marks</th>
+                    <th style="padding: 15px; width: 200px;">Update Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in students %}
+                <tr style="border-bottom: 1px solid #edf2f7; transition: background 0.2s; hover: background: #fdfdfd;">
+                    <td style="padding: 15px; font-weight: bold; color: #2c3e50;">{{ s.roll_no }}</td>
+                    <td style="padding: 15px;">
+                        <div style="font-weight: 600; color: #4a5568;">{{ s.name_en or s.name }}</div>
+                        <div style="font-size: 0.8rem; color: #a0aec0;">Class: {{ s.class }}</div>
+                    </td>
+                    <td style="padding: 15px;">
+                        {% if s.marks %}
+                        <span style="background: #d4edda; color: #155724; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9rem;">
+                            {{ s.marks }}
+                        </span>
+                        {% else %}
+                        <span style="color: #cbd5e0; font-style: italic;">Not Entered</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 15px;">
+                        <form method="POST" style="display: flex; gap: 8px;">
+                            <input type="hidden" name="roll" value="{{ s.roll_no }}">
+                            <input type="number" 
+                                   name="marks" 
+                                   step="0.01"
+                                   style="width: 80px; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; outline: none;" 
+                                   placeholder="0.00"
+                                   required>
+                            <button type="submit" 
+                                    style="background: var(--sidebar-bg); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: bold; transition: 0.3s;">
+                                Save
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" style="padding: 40px; text-align: center; color: #a0aec0;">
+                        <i class="fas fa-user-slash" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                        No verified students available for mark entry.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    /* Add a subtle focus effect to inputs */
+    input[type="number"]:focus {
+        border-color: var(--accent-green) !important;
+        box-shadow: 0 0 0 3px rgba(0, 182, 94, 0.1);
+    }
+    button:hover {
+        background: var(--accent-green) !important;
+    }
+</style>
+{% endblock %}

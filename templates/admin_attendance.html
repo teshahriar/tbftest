@@ -1,0 +1,144 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+<style>
+    /* Printing Logic: Hide sidebar and top-nav from admin_base during print */
+    @media print {
+        .sidebar, .top-nav, .no-print { display: none !important; }
+        .main-content { margin-left: 0 !important; padding: 0 !important; width: 100% !important; }
+        body { background: white; }
+        .sheet-container { border: none !important; box-shadow: none !important; width: 100% !important; max-width: 100% !important; }
+    }
+
+    .sheet-container {
+        max-width: 1000px;
+        margin: auto;
+        background: white;
+        padding: 40px;
+        border: 1px solid #eee;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    .header {
+        text-align: center;
+        border-bottom: 2px solid #333;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+
+    .header h1 { margin: 0; font-size: 24px; text-transform: uppercase; color: #2c3e50; }
+    .header p { margin: 5px 0; font-size: 14px; font-weight: bold; }
+
+    .meta-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        font-size: 13px;
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    .attendance-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    .attendance-table th, .attendance-table td {
+        border: 1px solid #000;
+        padding: 12px 8px;
+        text-align: left;
+        font-size: 13px;
+    }
+
+    .attendance-table th {
+        background-color: #f2f2f2;
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+
+    .roll-col { width: 90px; text-align: center; font-weight: bold; }
+    .name-col { width: 250px; }
+    .inst-col { width: 250px; }
+    .photo-col { width: 70px; text-align: center; }
+    .sig-col { width: 150px; }
+
+    .student-photo {
+        width: 50px;
+        height: 60px;
+        object-fit: cover;
+        border: 1px solid #ddd;
+    }
+
+    .print-controls {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="print-controls no-print">
+    <button onclick="window.print()" style="background: #2c3e50; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+        <i class="fas fa-print"></i> Print Attendance Sheet
+    </button>
+</div>
+
+<div class="sheet-container">
+    <div class="header">
+        <h1>The Brilliants Foundation, Bogura</h1>
+        <p>Scholarship Examination - 2026</p>
+        <p style="font-size: 18px; text-decoration: underline;">Attendance Sheet (Candidate)</p>
+    </div>
+
+    <div class="meta-info">
+        <span><strong>Center:</strong> Bogura Sadar Main Center</span>
+        <span><strong>Date:</strong> 20 Jan 2026</span>
+        <span><strong>Room:</strong> _________</span>
+    </div>
+
+    <table class="attendance-table">
+        <thead>
+            <tr>
+                <th>SL</th>
+                <th class="roll-col">Roll No</th>
+                <th class="photo-col">Photo</th>
+                <th class="name-col">Student Name</th>
+                <th class="inst-col">Institution</th>
+                <th class="sig-col">Signature</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in students %}
+            <tr>
+                <td style="text-align: center;">{{ loop.index }}</td>
+                <td class="roll-col">{{ s.roll_no }}</td>
+                <td class="photo-col">
+                    <img src="{{ url_for('static', filename='uploads/' + s.photo) }}" class="student-photo">
+                </td>
+                <td class="name-col">
+                    <strong>{{ s.name_en or s.name }}</strong>
+                </td>
+                <td class="inst-col">{{ s.school or s.institute_bn }}</td>
+                <td class="sig-col"></td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 50px;">No verified students found for this sheet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div style="margin-top: 80px; display: flex; justify-content: space-between; padding: 0 20px;">
+        <div style="text-align: center; width: 180px; border-top: 1px solid #000; padding-top: 5px; font-size: 13px;">
+            Hall Supervisor
+        </div>
+        <div style="text-align: center; width: 180px; border-top: 1px solid #000; padding-top: 5px; font-size: 13px;">
+            Center Secretary
+        </div>
+    </div>
+</div>
+
+{% endblock %}
