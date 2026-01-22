@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Institutional Profile | TBF Academy{% endblock %}
+{% block title %}প্রতিষ্ঠান পরিচিতি | দ্যা ব্রিলিয়্যান্ট'স ফাউন্ডেশন{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -8,7 +8,8 @@
     .page-wrapper {
         background-color: #ffffff;
         color: #2d3748;
-        line-height: 1.6;
+        line-height: 1.8;
+        font-family: 'Hind Siliguri', sans-serif;
     }
 
     /* Top Branding Section */
@@ -17,22 +18,24 @@
         border-bottom: 3px double #e2e8f0;
         text-align: center;
         margin-bottom: 50px;
+        background-color: #fcfcfc;
     }
 
     .institution-header h1 {
-        font-family: 'Times New Roman', Times, serif; /* Classic academic font */
         font-size: 2.8rem;
         color: var(--navy);
         margin: 0;
         letter-spacing: 1px;
+        font-weight: 700;
     }
 
     .institution-header p {
         text-transform: uppercase;
-        letter-spacing: 4px;
-        color: #718096;
-        font-size: 0.9rem;
+        letter-spacing: 3px;
+        color: #922B21; /* Crimson accent */
+        font-size: 1rem;
         margin-top: 10px;
+        font-weight: 600;
     }
 
     /* Content Layout */
@@ -44,33 +47,35 @@
     }
 
     .main-article h2 {
-        font-family: 'Times New Roman', Times, serif;
-        border-bottom: 1px solid var(--gold);
+        border-bottom: 2px solid var(--gold);
         padding-bottom: 10px;
         color: var(--navy);
         margin-top: 40px;
+        font-weight: 700;
     }
 
     .main-article p {
         margin-bottom: 20px;
         text-align: justify;
+        font-size: 1.1rem;
     }
 
     /* Sidebar for Notices/Facts */
     .sidebar-info {
         background: #f8fafc;
         padding: 30px;
-        border-radius: 4px;
+        border-radius: 8px;
         border: 1px solid #e2e8f0;
         height: fit-content;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     }
 
     .sidebar-info h3 {
-        font-size: 1.1rem;
+        font-size: 1.3rem;
         color: var(--navy);
         border-bottom: 2px solid var(--gold);
-        padding-bottom: 5px;
-        margin-bottom: 15px;
+        padding-bottom: 8px;
+        margin-bottom: 20px;
     }
 
     .fact-list {
@@ -80,9 +85,11 @@
 
     .fact-list li {
         margin-bottom: 15px;
-        font-size: 0.9rem;
+        font-size: 1rem;
         border-bottom: 1px solid #edf2f7;
         padding-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
     }
 
     /* Philosophy Blocks */
@@ -92,16 +99,91 @@
         gap: 30px;
         margin-top: 60px;
         padding: 40px 0;
-        border-top: 1px solid #e2e8f0;
+        border-top: 2px solid #e2e8f0;
+    }
+
+    .philosophy-box {
+        padding: 20px;
+        background: #fff;
+        border-radius: 5px;
+        transition: 0.3s;
+    }
+    
+    .philosophy-box:hover {
+        transform: translateY(-5px);
     }
 
     .philosophy-box h4 {
         color: var(--navy);
-        margin-bottom: 10px;
+        margin-bottom: 15px;
+        font-size: 1.25rem;
+        border-left: 4px solid var(--gold);
+        padding-left: 10px;
     }
 
     @media (max-width: 850px) {
         .content-grid, .philosophy-section { grid-template-columns: 1fr; }
+        .institution-header h1 { font-size: 2rem; }
+    }
+
+    /* Image Scroller Styling */
+    .scroller-title {
+        text-align: center;
+        margin: 50px 0 20px;
+        color: var(--navy);
+        font-weight: 700;
+        font-size: 1.5rem;
+    }
+
+    .image-scroller {
+        width: 100%;
+        overflow: hidden;
+        background: #fff;
+        padding: 20px 0;
+        border-top: 1px solid #eee;
+        border-bottom: 1px solid #eee;
+        position: relative;
+    }
+
+    .scroller-track {
+        display: flex;
+        width: calc(250px * 22); /* ১১টি ছবির দ্বিগুণ যাতে লুপ বোঝা না যায় */
+        animation: scroll 40s linear infinite;
+    }
+
+    .scroller-track:hover {
+        animation-play-state: paused; /* মাউস রাখলে স্ক্রলিং থেমে যাবে */
+    }
+
+    .slide {
+        width: 250px;
+        height: 180px;
+        padding: 0 10px;
+    }
+
+    .slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        border: 2px solid #fff;
+    }
+
+    @keyframes scroll {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(calc(-250px * 11)); }
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 600px) {
+        .slide {
+            width: 180px;
+            height: 130px;
+        }
+        @keyframes scroll {
+            100% { transform: translateX(calc(-180px * 11)); }
+        }
     }
 </style>
 {% endblock %}
@@ -110,63 +192,95 @@
 <div class="page-wrapper">
     
     <header class="institution-header">
-        <h1>TBF ACADEMY OF EXCELLENCE</h1>
-        <p>Prospectus & Admission Directorate 2026</p>
+        <h1>দ্যা ব্রিলিয়্যান্ট'স ফাউন্ডেশন, বগুড়া</h1>
+        <p>মেধা অন্বেষণ ও ছাত্রকল্যাণ অধিদপ্তর ২০২৬</p>
     </header>
 
     <div class="container">
         <div class="content-grid">
             <article class="main-article">
-                <h2>Institutional Overview</h2>
+                <h2>প্রাতিষ্ঠানিক লক্ষ্য ও উদ্দেশ্য</h2>
                 <p>
-                    Established with the mandate of fostering intellectual rigor and ethical leadership, TBF Academy has remained at the forefront of secondary education for over a decade. Our institution is built upon the pillars of discipline, academic integrity, and the pursuit of holistic excellence.
+                    ২০১২ সালে প্রতিষ্ঠিত "দ্যা ব্রিলিয়্যান্টস্ ফাউন্ডেশন, বগুড়া" একটি সম্পূর্ণ অলাভজনক ও ছাত্রকল্যাণমূলক শিক্ষা ফাউন্ডেশন। আমাদের মূল লক্ষ্য হলো কোমলমতি শিক্ষার্থীদের মাঝে মেধার সুষ্ঠু বিকাশ ঘটানো এবং তাদের প্রতিযোগিতামূলক পরীক্ষার জন্য দক্ষ করে গড়ে তোলা। গত এক দশকেরও বেশি সময় ধরে আমরা শিক্ষা সেবায় একনিষ্ঠভাবে কাজ করে যাচ্ছি।
                 </p>
                 <p>
-                    We believe that education is not merely the accumulation of facts, but the training of the mind to think critically. Our faculty consists of seasoned educators dedicated to providing a competitive yet supportive environment that prepares students for the challenges of higher academia and global citizenship.
+                    আমরা বিশ্বাস করি, শিক্ষা মানে কেবল তথ্যের আহরণ নয়, বরং চিন্তাশক্তি ও মেধার সঠিক চর্চা। আমাদের অভিজ্ঞ পরিচালনা পর্ষদ শিক্ষার্থীদের জন্য একটি সুস্থ ও প্রতিযোগিতামূলক পরিবেশ নিশ্চিত করতে নিরলস পরিশ্রম করে, যা তাদের উচ্চশিক্ষা ও আদর্শ নাগরিক হিসেবে গড়ে তুলতে সাহায্য করে।
                 </p>
 
-                <h2>Admission Criteria & Standards</h2>
+                <h2>বৃত্তি পরীক্ষার মানদণ্ড ও গুরুত্ব</h2>
                 <p>
-                    Admission to TBF Academy is strictly merit-based. We invite applications from students currently in or entering Classes 6 through 9. Candidates are evaluated through a multi-stage process involving a comprehensive entrance examination, an assessment of previous academic records, and a formal interview.
+                    দ্যা ব্রিলিয়্যান্ট'স ফাউন্ডেশন আয়োজিত বৃত্তি পরীক্ষা সম্পূর্ণ মেধা-ভিত্তিক। আমরা স্কুল ও মাদ্রাসা—উভয় শাখার ৫ম থেকে ১০ম শ্রেণির শিক্ষার্থীদের এই পরীক্ষায় অংশগ্রহণের আহ্বান জানাই। স্বচ্ছ ও নিরপেক্ষ মেধা অন্বেষণের মাধ্যমে শিক্ষার্থীদের সঠিক মূল্যায়ন নিশ্চিত করাই আমাদের প্রধান অঙ্গীকার।
                 </p>
                 <p>
-                    The entrance examination covers core competencies in Mathematics, Natural Sciences, English Language, and Analytical Reasoning. We seek students who demonstrate a high degree of curiosity and a commitment to our institutional values.
+                    এই পরীক্ষার মাধ্যমে শিক্ষার্থীদের গণিত, বিজ্ঞান, ইংরেজি ও সাধারণ জ্ঞানের দক্ষতা যাচাই করা হয়। আমরা সেই সব শিক্ষার্থীদের খুঁজি যারা কৌতূহলী এবং নতুন কিছু শেখার আগ্রহ রাখে। পরীক্ষায় উত্তীর্ণ মেধাবীদের প্রতি বছর ট্যালেন্টপুল ও সাধারণ গ্রেডে আকর্ষণীয় মেধাবৃত্তি ও সনদ প্রদান করা হয়।
                 </p>
             </article>
 
             <aside class="sidebar-info">
-                <h3>Quick Reference</h3>
+                <h3>এক নজরে তথ্য</h3>
                 <ul class="fact-list">
-                    <li><strong>Founded:</strong> 2012</li>
-                    <li><strong>Accreditation:</strong> National Curriculum & Global Standards</li>
-                    <li><strong>Faculty:</strong> 100% Post-Graduate Certified</li>
-                    <li><strong>Campus:</strong> Modern Science Labs & Library</li>
-                    <li><strong>Session:</strong> January - December</li>
+                    <li><span>প্রতিষ্ঠাকাল:</span> <strong>২০১২</strong></li>
+                    <li><span>ধরণ:</span> <strong>অলাভজনক ফাউন্ডেশন</strong></li>
+                    <li><span>শিক্ষক/পরিচালক:</span> <strong>১০০% উচ্চশিক্ষিত</strong></li>
+                    <li><span>কার্যক্রম:</span> <strong>মেধা অন্বেষণ ও বৃত্তি</strong></li>
+                    <li><span>অধিবেশন:</span> <strong>জানুয়ারি - ডিসেম্বর</strong></li>
                 </ul>
 
-                <h3 style="margin-top: 30px;">Important Dates</h3>
+                <h3 style="margin-top: 30px;">গুরুত্বপূর্ণ তারিখ</h3>
                 <ul class="fact-list" style="border: none;">
-                    <li>Application Start: Oct 01, 2025</li>
-                    <li>Submission Deadline: Nov 30, 2025</li>
-                    <li>Entrance Exam: Dec 15, 2025</li>
+                    <li>আবেদন শুরু: ০১ অক্টোবর, ২০২৫</li>
+                    <li>আবেদনের শেষ তারিখ: ৩০ নভেম্বর, ২০২৫</li>
+                    <li>বৃত্তি পরীক্ষা: ১৫ ডিসেম্বর, ২০২৫</li>
                 </ul>
+                
+                <div style="margin-top: 20px; text-align: center;">
+                    <a href="/apply" style="display: block; background: var(--navy); color: #fff; padding: 12px; text-decoration: none; border-radius: 5px; font-weight: bold;">অনলাইন আবেদন করুন</a>
+                </div>
             </aside>
         </div>
 
         <section class="philosophy-section">
             <div class="philosophy-box">
-                <h4>Core Vision</h4>
-                <p style="font-size: 0.9rem; color: #4a5568;">To be a global leader in secondary education, shaping minds that lead with integrity and innovate with purpose.</p>
+                <h4>মূল ভিশন</h4>
+                <p style="font-size: 1rem; color: #4a5568;">একটি মেধাবী ও উন্নত জাতি গঠনে মাধ্যমিক পর্যায়ের শিক্ষা ব্যবস্থায় বৈশ্বিক মানদণ্ড নিশ্চিত করা এবং নেতৃত্বের গুণাবলী বিকাশ করা।</p>
             </div>
             <div class="philosophy-box">
-                <h4>Ethical Framework</h4>
-                <p style="font-size: 0.9rem; color: #4a5568;">Our code of conduct ensures a safe, respectful, and disciplined environment for all scholars to thrive.</p>
+                <h4>নৈতিক কাঠামো</h4>
+                <p style="font-size: 1rem; color: #4a5568;">শুদ্ধ চরিত্র এবং মানবিক মূল্যবোধসম্পন্ন প্রজন্ম গড়ে তুলতে আমরা একটি নিরাপদ ও সুশৃঙ্খল পরিবেশ নিশ্চিত করি।</p>
             </div>
             <div class="philosophy-box">
-                <h4>Academic Rigor</h4>
-                <p style="font-size: 0.9rem; color: #4a5568;">A curriculum designed to challenge students, pushing them beyond conventional learning boundaries.</p>
+                <h4>একাডেমিক উৎকর্ষ</h4>
+                <p style="font-size: 1rem; color: #4a5568;">গতানুগতিক শিক্ষার বাইরে শিক্ষার্থীদের মেধা ও সৃজনশীলতাকে চ্যালেঞ্জ করার মতো একটি উন্নত পাঠ্যক্রম ও পরীক্ষা পদ্ধতি।</p>
             </div>
         </section>
+    </div>
+    <h3 class="scroller-title">আমাদের কার্যক্রমের কিছু মুহূর্ত</h3>
+    <div class="image-scroller">
+        <div class="scroller-track">
+            <div class="slide"><img src="https://i.postimg.cc/HLFyVYC6/476177903-914342390890559-7329175491287224542-n.jpg" alt="TBF Activity"></div>
+            <div class="slide"><img src="https://i.postimg.cc/d0gyLsKn/480572380-926063119718486-688025422979547095-n.jpg" alt="TBF Activity"></div>
+            <div class="slide"><img src="https://i.postimg.cc/CK9qzhV4/480862427-925791249745673-2652655655841689610-n.jpg" alt="TBF Activity"></div>
+            <div class="slide"><img src="https://i.postimg.cc/Gp6yHL1M/481276506-925178299806968-6944395284850639496-n.jpg" alt="TBF Activity"></div>
+            <div class="slide"><img src="https://i.postimg.cc/VN2Cdf8w/554995269-1087867906871339-6414056104665178671-n.jpg" alt="TBF Activity"></div>
+            <div class="slide"><img src="https://i.postimg.cc/1zbqfmQQ/555427681-1087866620204801-3128597323041331878-n.jpg" alt="TBF Activity"></div>
+            <div class="slide"><img src="https://i.postimg.cc/CK9qzhgh/555433011-1087866116871518-623710622485349139-n.jpg" alt="TBF Activity"></div>
+            <div class="slide"><img src="https://i.postimg.cc/LXfZPc9m/555444713-1087866976871432-1689139963871996986-n.jpg" alt="TBF Activity"></div>
+            <div class="slide"><img src="https://i.postimg.cc/767TzFHY/555929120-1087866360204827-91672069064245353-n.jpg" alt="TBF Activity"></div>
+            <div class="slide"><img src="https://i.postimg.cc/W3rJZBN3/555978680-1087866826871447-5800290998229011142-n.jpg" alt="TBF Activity"></div>
+            <div class="slide"><img src="https://i.postimg.cc/FRcJSMrd/604875734-1157724106552385-5305990128823321198-n.jpg" alt="TBF Activity"></div>
+
+            <div class="slide"><img src="https://i.postimg.cc/HLFyVYC6/476177903-914342390890559-7329175491287224542-n.jpg" alt="TBF Activity"></div>
+            <div class="slide"><img src="https://i.postimg.cc/d0gyLsKn/480572380-926063119718486-688025422979547095-n.jpg" alt="TBF Activity"></div>
+            <div class="slide"><img src="https://i.postimg.cc/CK9qzhV4/480862427-925791249745673-2652655655841689610-n.jpg" alt="TBF Activity"></div>
+            <div class="slide"><img src="https://i.postimg.cc/Gp6yHL1M/481276506-925178299806968-6944395284850639496-n.jpg" alt="TBF Activity"></div>
+            <div class="slide"><img src="https://i.postimg.cc/VN2Cdf8w/554995269-1087867906871339-6414056104665178671-n.jpg" alt="TBF Activity"></div>
+            <div class="slide"><img src="https://i.postimg.cc/1zbqfmQQ/555427681-1087866620204801-3128597323041331878-n.jpg" alt="TBF Activity"></div>
+            <div class="slide"><img src="https://i.postimg.cc/CK9qzhgh/555433011-1087866116871518-623710622485349139-n.jpg" alt="TBF Activity"></div>
+            <div class="slide"><img src="https://i.postimg.cc/LXfZPc9m/555444713-1087866976871432-1689139963871996986-n.jpg" alt="TBF Activity"></div>
+            <div class="slide"><img src="https://i.postimg.cc/767TzFHY/555929120-1087866360204827-91672069064245353-n.jpg" alt="TBF Activity"></div>
+            <div class="slide"><img src="https://i.postimg.cc/W3rJZBN3/555978680-1087866826871447-5800290998229011142-n.jpg" alt="TBF Activity"></div>
+            <div class="slide"><img src="https://i.postimg.cc/FRcJSMrd/604875734-1157724106552385-5305990128823321198-n.jpg" alt="TBF Activity"></div>
+        </div>
     </div>
 </div>
 {% endblock %}
