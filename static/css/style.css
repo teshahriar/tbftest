@@ -85,7 +85,7 @@ nav {
     text-transform: uppercase;
 }
 
-.nav-links a:hover { color: var(--gold); background: rgba(255,255,255,0.1); }
+.nav-links a:hover { color: var(--gold); background: rgb(255, 255, 255); }
 
 /* --- Main Content: Fit to Size --- */
 .container { 
@@ -135,7 +135,7 @@ nav {
         top: 70px;
         left: 0;
         width: 100%;
-        background: var(--navy);
+        background: #B2BEB5;
         flex-direction: column;
         padding: 15px 0;
         border-bottom: 3px solid var(--gold);
@@ -310,7 +310,7 @@ main.admin-main {
         display: none;
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.5);
+        background: rgb(0, 0, 0, 0.5);
         z-index: 1050;
     }
     
