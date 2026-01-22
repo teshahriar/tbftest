@@ -1,7 +1,7 @@
 import os
 import random
 import string
-from flask import Flask, render_template, request, redirect, url_for, session, send_file, flash
+from flask import Flask, render_template, request, redirect, url_for, session, send_file, flash, jsonify
 from flask_pymongo import PyMongo
 from werkzeug.utils import secure_filename
 from reportlab.pdfgen import canvas
@@ -63,51 +63,29 @@ def notices():
     all_notices = mongo.db.notices.find().sort("_id", -1)
     return render_template('notices.html', notices=all_notices)
 
-from bson import ObjectId
-
-import os
-from flask import request, render_template, session, redirect, url_for, flash
-from werkzeug.utils import secure_filename
-
 @app.route('/apply', methods=['GET', 'POST'])
 def apply():
     if request.method == 'POST':
-        # 1. Password Verification
-        password = request.form.get('password')
-        confirm_password = request.form.get('confirm_password')
-        
-        if password != confirm_password:
-            flash("Passwords do not match!", "danger")
-            return redirect(url_for('apply'))
-
-        # 2. Generate Registration and Roll Numbers
+        # Registration & Roll generation
         reg_no, roll_no = generate_numbers()
         
-        # 3. Handle File Uploads (Photo and Signature)
-        # Handle Photo
+        # Files (Photo 300x350, Signature 300x80)
         photo = request.files.get('photo')
-        if photo and photo.filename != '':
-            photo_name = secure_filename(f"photo_{roll_no}_{photo.filename}")
-            photo.save(os.path.join(app.config['UPLOAD_FOLDER'], photo_name))
-        else:
-            photo_name = "default_photo.png"
-
-        # Handle Signature
         sig = request.files.get('signature')
-        if sig and sig.filename != '':
-            sig_name = secure_filename(f"sig_{roll_no}_{sig.filename}")
-            sig.save(os.path.join(app.config['UPLOAD_FOLDER'], sig_name))
-        else:
-            sig_name = "default_sig.png"
+        
+        photo_name = secure_filename(f"photo_{roll_no}.jpg")
+        sig_name = secure_filename(f"sig_{roll_no}.jpg")
+        
+        photo.save(os.path.join(app.config['UPLOAD_FOLDER'], photo_name))
+        sig.save(os.path.join(app.config['UPLOAD_FOLDER'], sig_name))
 
-        # 4. Map all HTML fields to MongoDB Document
+        # Full Data Mapping based on your provided image
         student_data = {
-            # Exam Info
-            "exam_name": request.form.get('exam_name'),
+            "exam_name": "Scholarship Exam 2026",
             "center_code": request.form.get('center_code'),
-            "category": request.form.get('category'), # Madrasah/School
+            "category": request.form.get('category'),
+            "student_class": request.form.get('student_class'),
             
-            # Student Basic Info (English)
             "name_en": request.form.get('name_en'),
             "father_en": request.form.get('father_en'),
             "mother_en": request.form.get('mother_en'),
@@ -116,49 +94,34 @@ def apply():
             "gender": request.form.get('gender'),
             "mobile": request.form.get('mobile'),
             
-            # Student Basic Info (Bangla)
             "name_bn": request.form.get('name_bn'),
             "father_bn": request.form.get('father_bn'),
             "mother_bn": request.form.get('mother_bn'),
             "institute_bn": request.form.get('institute_bn'),
-            
-            # Academic & Contact
-            "section": request.form.get('section'), # Science/Humanities/etc
+            "section": request.form.get('section') if request.form.get('student_class') in ['9','10'] else "N/A",
             "religion": request.form.get('religion'),
             "email": request.form.get('email'),
             
-            # Address Data
             "address": {
                 "present": {
-                    "village": request.form.get('pre_village'),
-                    "post": request.form.get('pre_post'),
-                    "thana": request.form.get('pre_thana'),
-                    "dist": request.form.get('pre_dist')
+                    "v": request.form.get('pre_v'), "p": request.form.get('pre_p'),
+                    "t": request.form.get('pre_t'), "d": request.form.get('pre_d')
                 },
                 "permanent": {
-                    "village": request.form.get('per_village'),
-                    "post": request.form.get('per_post'),
-                    "thana": request.form.get('per_thana'),
-                    "dist": request.form.get('per_dist')
+                    "v": request.form.get('per_v'), "p": request.form.get('per_p'),
+                    "t": request.form.get('per_t'), "d": request.form.get('per_d')
                 }
             },
             
-            # System Data
-            "password": password,
-            "reg_no": reg_no,
-            "roll_no": str(roll_no), 
+            "roll_no": str(roll_no),
+            "reg_no": str(reg_no),
             "photo": photo_name,
             "signature": sig_name,
-            "status": "Pending",
-            "verification": False,
-            "marks": None,
-            "tran_id": None
+            "admit_approved": False,
+            "status": "Pending"
         }
         
-        # 5. Insert into Database
         mongo.db.students.insert_one(student_data)
-        
-        # 6. Redirect to Success Page
         return render_template('success.html', reg=reg_no, roll=roll_no)
 
     return render_template('apply.html')
@@ -235,54 +198,64 @@ def download_slip():
 
     return render_template('payment_slip.html', student=student)
 
-@app.route('/download_admit')
+@app.route('/download-admit', methods=['GET', 'POST'])
 def download_admit():
-    if 'user_id' not in session: return redirect(url_for('login'))
-    user = mongo.db.students.find_one({"_id": ObjectId(session['user_id'])})
-
-    # VERIFICATION CHECK
-    if user.get('status') != "Verified":
-        return "<h3>Error: Your application is not yet verified by the Administrator.</h3><a href='/dashboard'>Go Back</a>"
-
-    buffer = BytesIO()
-    p = canvas.Canvas(buffer)
+    student = None
+    error = None
     
-    # PDF Design
-    p.setStrokeColorRGB(0, 0.2, 0.4)
-    p.setLineWidth(3)
-    p.rect(20, 20, 555, 800)
-    p.setFillColorRGB(0, 0.2, 0.4)
-    p.rect(20, 730, 555, 70, fill=1)
-    p.setFillColorRGB(1, 1, 1)
-    p.setFont("Helvetica-Bold", 20)
-    p.drawCentredString(297, 770, "TBF ADMIT CARD")
-    
-    # Student Info in PDF
-    p.setFillColorRGB(0, 0, 0)
-    p.setFont("Helvetica", 12)
-    y = 650
-    p.drawString(50, 680, f"Name: {user['name'].upper()}")
-    p.drawString(50, 660, f"Roll No: {user['roll_no']}")
-    p.drawString(50, 640, f"Reg No: {user['reg_no']}")
-    p.drawString(50, 620, f"Class: {user['class']}")
-    
-    # Image in PDF
-    img_path = os.path.join(app.config['UPLOAD_FOLDER'], user['photo'])
-    try:
-        p.drawImage(img_path, 430, 600, width=100, height=120)
-    except:
-        p.drawString(430, 650, "[Photo Error]")
+    if request.method == 'POST':
+        # Safely get the roll number and strip whitespace
+        roll = request.form.get('roll_no', '').strip()
+        
+        if not roll:
+            error = "Please enter your Roll Number."
+        else:
+            # Search for the student by roll number only
+            student = mongo.db.students.find_one({"roll_no": roll})
+            
+            if not student:
+                error = "Roll Number not found in our records."
+            elif not student.get('admit_approved', False):
+                # This ensures the 'Admin Approval' logic still guards the download
+                error = "Your admit card has not been approved by the Admin yet."
+                student = None
+            
+    return render_template('student_admit_portal.html', student=student, error=error)
 
-    p.setDash([]) # Ensure solid lines for signatures
-    p.drawString(50, 100, "__________________")
-    p.drawString(50, 85, "Candidate Sign")
-    p.drawString(400, 100, "__________________")
-    p.drawString(400, 85, "Controller Sign")
+@app.route('/print-admit/<student_id>')
+def print_admit(student_id):
+    # Fetch student by ID
+    student = mongo.db.students.find_one({"_id": ObjectId(student_id)})
+    
+    # Check if student exists and has been approved by admin
+    if not student or not student.get('admit_approved', False):
+        return "Admit Card is not available for download or has not been approved yet.", 403
 
-    p.showPage()
-    p.save()
-    buffer.seek(0)
-    return send_file(buffer, as_attachment=True, download_name=f"Admit_{user['roll_no']}.pdf")
+    return render_template('print_admit_template.html', student=student)
+
+@app.route('/results', methods=['GET', 'POST'])
+def public_results():
+    student = None
+    rank = None
+    searched = False
+
+    if request.method == 'POST':
+        roll = request.form.get('roll_no', '').strip()
+        searched = True
+        
+        if roll:
+            # 1. Find the student
+            student = mongo.db.students.find_one({"roll_no": roll, "marks": {"$exists": True}})
+            
+            if student:
+                # 2. Calculate Merit Rank (Total students with higher marks + 1)
+                student_total = (student.get('marks') or {}).get('total', 0)
+                higher_scores = mongo.db.students.count_documents({
+                    "marks.total": {"$gt": student_total}
+                })
+                rank = higher_scores + 1
+
+    return render_template('public_results.html', student=student, rank=rank, searched=searched)
 
 @app.route('/logout')
 def logout():
@@ -341,52 +314,53 @@ def admin_dashboard():
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
     
-    # Check if MongoDB is actually returning data
-    student_cursor = mongo.db.students.find().sort("_id", -1)
-    students = list(student_cursor)
+    # --- STEP 1: Get Filter Parameters from URL ---
+    search_query = request.args.get('search', '')
+    center_filter = request.args.get('center', '')
+    class_filter = request.args.get('class', '')
     
-    # Logic: If database is empty, create a fake record to see if it shows up
-    if not students:
-        print("DEBUG: No students found in MongoDB!")
+    # --- STEP 2: Build MongoDB Query ---
+    query = {}
+    if search_query:
+        query["$or"] = [
+            {"name": {"$regex": search_query, "$options": "i"}},
+            {"roll_no": {"$regex": search_query, "$options": "i"}},
+            {"institute_bn": {"$regex": search_query, "$options": "i"}}
+        ]
+    if center_filter:
+        query["center_code"] = center_filter
+    if class_filter:
+        query["class"] = class_filter
+
+    # --- STEP 3: Fetch Data ---
+    students = list(mongo.db.students.find(query).sort("roll_no", 1))
     
+    # Stats should reflect the filtered view or global (Global is better for Admin)
     stats = {
-        "total": len(students),
+        "total": mongo.db.students.count_documents({}),
         "pending": mongo.db.students.count_documents({"status": "Pending"}),
         "verified": mongo.db.students.count_documents({"status": "Verified"})
     }
     
     return render_template('admin_panel.html', students=students, stats=stats)
 
-# --- APPROVE STUDENT (Verification Logic) ---
-@app.route('/admin/approve/<roll>')
-def approve_student(roll):
-    if not session.get('admin_logged_in'):
-        return redirect(url_for('admin_login'))
-        
-    # Update both status for Admit Card and verification for Payment Slip
+# --- DIRECT DATABASE UPDATE API (Point 2) ---
+@app.route('/admin/api/update_status', methods=['POST'])
+def update_status():
+    if not session.get('admin_logged_in'): return jsonify({"error": "Unauthorized"}), 403
+    
+    data = request.json
+    roll = data.get('roll')
+    new_status = data.get('status')
+    
+    verification = True if new_status == "Verified" else False
+    
     mongo.db.students.update_one(
         {"roll_no": roll},
-        {"$set": {"status": "Verified", "verification": True}}
+        {"$set": {"status": new_status, "verification": verification}}
     )
-    flash(f"Student {roll} has been verified and issued an admit card.", "success")
-    return redirect(url_for('admin_dashboard'))
+    return jsonify({"success": True})
 
-# --- BULK MARK ENTRY ---
-@app.route('/admin/manage-marks', methods=['GET', 'POST'])
-def manage_marks():
-    if not session.get('admin_logged_in'): 
-        return redirect(url_for('admin_login'))
-    
-    if request.method == 'POST':
-        roll = request.form.get('roll')
-        marks = request.form.get('marks')
-        mongo.db.students.update_one({"roll_no": roll}, {"$set": {"marks": marks}})
-        flash(f"Marks updated for Roll: {roll}", "success")
-
-    # FIX: Wrap the find() result in list()
-    students = list(mongo.db.students.find({"status": "Verified"}).sort("roll_no", 1))
-    
-    return render_template('admin_marks.html', students=students)
 
 # --- ATTENDANCE SHEET (One clean route) ---
 @app.route('/admin/attendance-sheet')
@@ -394,31 +368,188 @@ def attendance_sheet():
     if not session.get('admin_logged_in'): 
         return redirect(url_for('admin_login'))
     
-    # Fetch students sorted by roll number for the exam hall list
-    students = list(mongo.db.students.find({"status": "Verified"}).sort("roll_no", 1))
-    return render_template('admin_attendance.html', students=students)
-
+    # Get center filter from URL
+    center_code = request.args.get('center', '')
+    
+    # Query: Only Verified students for the specific center
+    query = {"status": "Verified"}
+    if center_code:
+        query["center_code"] = center_code
+    
+    students = list(mongo.db.students.find(query).sort("roll_no", 1))
+    
+    return render_template('admin_attendance.html', 
+                           students=students, 
+                           current_center=center_code or "All Centers")
 # --- SEAT PLAN ---
-@app.route('/admin/seat-plan', methods=['GET', 'POST'])
+@app.route('/admin/seat-plan')
 def seat_plan():
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
     
-    # Get filter values from the dropdowns
+    # Get filter values
     center = request.args.get('center')
     student_class = request.args.get('class')
     gender = request.args.get('gender')
 
-    # Build the database query
+    # Build the database query dynamically
     query = {"status": "Verified"}
-    if center: query["center_code"] = center
-    if student_class: query["class"] = student_class
-    if gender: query["gender"] = gender
+    if center: 
+        query["center_code"] = center
+    if student_class: 
+        query["class"] = student_class
+    if gender: 
+        query["gender"] = gender
 
-    # Fetch and sort by Roll Number
+    # Fetch and sort by Roll Number (crucial for physical seating order)
     students = list(mongo.db.students.find(query).sort("roll_no", 1))
     
     return render_template('admin_seat_plan.html', students=students)
+
+# --- SEARCH-FIRST MARK ENTRY (The one you requested) ---
+@app.route('/admin/entry-marks', methods=['GET', 'POST'])
+def entry_marks():
+    # 1. Security Check
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    student = None
+    if request.method == 'POST':
+        form_type = request.form.get('form_type')
+        roll = request.form.get('roll_no')
+
+        # --- ACTION 1: SEARCH STUDENT ---
+        if form_type == 'search':
+            # We search for the student and ensure they are 'Verified'
+            student = mongo.db.students.find_one({"roll_no": roll, "status": "Verified"})
+            if not student:
+                flash(f"Verified student with Roll {roll} not found. Please check Verification status.", "danger")
+        
+        # --- ACTION 2: SAVE MARKS & GRADE ---
+        elif form_type == 'save':
+            try:
+                # Extract subject marks from form
+                m_ban = float(request.form.get('ban', 0))
+                m_eng = float(request.form.get('eng', 0))
+                m_math = float(request.form.get('math', 0))
+                m_gk = float(request.form.get('gk', 0))
+                
+                # Extract Scholarship Grade
+                s_grade = request.form.get('scholarship_grade', 'None')
+                
+                # Backend Calculation for Security
+                total = m_ban + m_eng + m_math + m_gk
+
+                # Update MongoDB
+                mongo.db.students.update_one(
+                    {"roll_no": roll},
+                    {"$set": {
+                        "marks": {
+                            "bangla": m_ban, 
+                            "english": m_eng, 
+                            "math": m_math, 
+                            "gk": m_gk, 
+                            "total": total
+                        },
+                        "scholarship_grade": s_grade,
+                        "result_published": True  # Flag to allow student to see result
+                    }}
+                )
+                flash(f"Successfully finalized results for Roll {roll}. Grade: {s_grade}", "success")
+                
+            except ValueError:
+                flash("Invalid input: Please enter numerical values for marks.", "danger")
+            except Exception as e:
+                flash(f"System Error: {str(e)}", "danger")
+            
+            # Redirect back to clear the form for the next student search
+            return redirect(url_for('entry_marks'))
+
+    return render_template('admin_marks_entry.html', student=student)
+
+#admin view all results
+@app.route('/admin/manage-results')
+def manage_results():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    # 1. Get Filters from URL
+    f_grade = request.args.get('grade', '')
+    f_class = request.args.get('class', '')
+    f_center = request.args.get('center', '')
+    f_school = request.args.get('school', '')
+    sort_by = request.args.get('sort', 'merit')
+
+    # 2. Build Query - Only show students who have the 'marks' field
+    query = {"marks": {"$exists": True}}
+    if f_grade: query["scholarship_grade"] = f_grade
+    if f_class: query["class"] = f_class
+    if f_center: query["center_code"] = f_center
+    if f_school: query["institute_bn"] = f_school
+
+    # 3. Fetch Data
+    results = list(mongo.db.students.find(query))
+
+    # 4. Calculate Stats with Triple-Safety Logic
+    total_count = len(results)
+    sum_marks = 0
+    for s in results:
+        # The 'or {}' trick prevents the 'NoneType' error
+        marks_data = s.get('marks') or {}
+        sum_marks += marks_data.get('total', 0)
+    
+    avg_score = (sum_marks / total_count) if total_count > 0 else 0
+
+    # 5. Professional Sorting
+    if sort_by == 'merit':
+        # Sort by Total -> Math -> English -> Bangla (Tie breakers)
+        results.sort(key=lambda x: (
+            (x.get('marks') or {}).get('total', 0),
+            (x.get('marks') or {}).get('math', 0),
+            (x.get('marks') or {}).get('english', 0),
+            (x.get('marks') or {}).get('bangla', 0)
+        ), reverse=True)
+    elif sort_by == 'roll':
+        results.sort(key=lambda x: x.get('roll_no', ''))
+    elif sort_by == 'name':
+        results.sort(key=lambda x: x.get('name_en', '').lower())
+
+    # 6. Dropdown Options
+    schools = mongo.db.students.distinct("institute_bn")
+    centers = mongo.db.students.distinct("center_code")
+
+    return render_template('admin_manage_results.html', 
+                           results=results, 
+                           schools=schools, 
+                           centers=centers,
+                           total_count=total_count, 
+                           sum_marks=sum_marks, 
+                           avg_score=avg_score)
+
+# --- ADMIN: APPROVE ADMIT CARDS ---
+@app.route('/admin/approve-admits', methods=['GET', 'POST'])
+def approve_admits():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
+    if request.method == 'POST':
+        # Get list of student IDs from checked boxes
+        student_ids = request.form.getlist('selected_students')
+        action = request.form.get('action') # 'approve' or 'revoke'
+        
+        if student_ids:
+            status = True if action == 'approve' else False
+            # Update all selected students at once
+            mongo.db.students.update_many(
+                {"_id": {"$in": [ObjectId(sid) for sid in student_ids]}},
+                {"$set": {"admit_approved": status}}
+            )
+            flash(f"Successfully {action}d {len(student_ids)} students.", "success")
+        
+        return redirect(url_for('approve_admits'))
+
+    students = list(mongo.db.students.find().sort("roll_no", 1))
+    return render_template('admin_approve_admits.html', students=students)
 
 # --- ADMIN LOGOUT ---
 @app.route('/admin/logout')
