@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="portal-container" style="max-width: 600px; margin: 50px auto; padding: 20px;">
+    
+    <div class="login-card no-print" style="background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); text-align: center; border: 1px solid #e2e8f0;">
+        <div style="background: #f0f9ff; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+            <i class="fas fa-id-card" style="color: #0284c7; font-size: 24px;"></i>
+        </div>
+        <h2 style="margin:0 0 10px;">Admit Card Download</h2>
+        <p style="color: #64748b; font-size: 14px; margin-bottom: 25px;">Enter your roll number to generate your official admit card.</p>
+
+        {% if error %}
+            <div style="background: #fef2f2; border: 1px solid #fee2e2; color: #b91c1c; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
+                <i class="fas fa-exclamation-triangle"></i> {{ error }}
+            </div>
+        {% endif %}
+
+        <form method="POST">
+            <div style="margin-bottom: 20px;">
+                <input type="text" name="roll_no" 
+                       style="width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 20px; text-align: center; font-weight: bold;" 
+                       placeholder="ENTER ROLL" required autofocus>
+            </div>
+            <button type="submit" style="background: #0284c7; width: 100%; padding: 15px; font-size: 16px; font-weight: 800; color: white; border: none; border-radius: 10px; cursor: pointer;">
+                VERIFY & PREVIEW
+            </button>
+        </form>
+    </div>
+
+    {% if student %}
+    <div style="margin-top: 30px; padding: 25px; background: #fff; border: 2px solid #10b981; border-radius: 16px; text-align: center; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
+        <p style="margin: 0 0 5px; color: #64748b; font-size: 12px; text-transform: uppercase;">Student Found</p>
+        <h3 style="margin: 0 0 20px; font-size: 22px; color: #1e293b;">{{ student.name_en }}</h3>
+        
+        <a href="{{ url_for('print_admit', student_id=student._id) }}" target="_blank" 
+           style="text-decoration: none; background: #10b981; color: white; padding: 15px 40px; border-radius: 12px; font-weight: 800; display: inline-block; font-size: 16px;">
+            <i class="fas fa-print"></i> DOWNLOAD & PRINT ADMIT
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

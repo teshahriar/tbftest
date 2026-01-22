@@ -1,0 +1,64 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+<div style="padding: 30px; font-family: 'Inter', sans-serif;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <div>
+            <h2 style="margin:0; color: #1e293b;">Final Merit List</h2>
+            <p style="color: #64748b; margin: 5px 0;">Overview of all entered marks and scholarship awards.</p>
+        </div>
+        
+        <div style="display: flex; gap: 10px;">
+            <a href="{{ url_for('view_all_results') }}" style="text-decoration:none; padding: 8px 15px; background: #e2e8f0; color: #475569; border-radius: 6px; font-size: 14px;">All</a>
+            <a href="{{ url_for('view_all_results', grade='Talentpool') }}" style="text-decoration:none; padding: 8px 15px; background: #fef3c7; color: #92400e; border-radius: 6px; font-size: 14px; border: 1px solid #fcd34d;">Talentpool</a>
+            <a href="{{ url_for('view_all_results', grade='General') }}" style="text-decoration:none; padding: 8px 15px; background: #d1fae5; color: #065f46; border-radius: 6px; font-size: 14px; border: 1px solid #6ee7b7;">General</a>
+        </div>
+    </div>
+
+    <div style="background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                    <th style="padding: 15px; color: #475569; font-weight: 600;">Rank</th>
+                    <th style="padding: 15px; color: #475569; font-weight: 600;">Student Details</th>
+                    <th style="padding: 15px; color: #475569; font-weight: 600; text-align: center;">B | E | M | G</th>
+                    <th style="padding: 15px; color: #475569; font-weight: 600; text-align: center;">Total</th>
+                    <th style="padding: 15px; color: #475569; font-weight: 600; text-align: center;">Grade</th>
+                    <th style="padding: 15px; color: #475569; font-weight: 600;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in results %}
+                <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+                    <td style="padding: 15px; font-weight: bold; color: #64748b;">#{{ loop.index }}</td>
+                    <td style="padding: 15px;">
+                        <div style="font-weight: 600; color: #1e293b;">{{ s.name_en }}</div>
+                        <div style="font-size: 12px; color: #94a3b8;">Roll: {{ s.roll_no }} | Class: {{ s.class }}</div>
+                    </td>
+                    <td style="padding: 15px; text-align: center; color: #64748b; font-size: 13px;">
+                        {{ s.marks.bangla }} | {{ s.marks.english }} | {{ s.marks.math }} | {{ s.marks.gk }}
+                    </td>
+                    <td style="padding: 15px; text-align: center;">
+                        <span style="font-weight: 800; color: #1e293b; font-size: 16px;">{{ s.marks.total }}</span>
+                    </td>
+                    <td style="padding: 15px; text-align: center;">
+                        {% if s.scholarship_grade == 'Talentpool' %}
+                            <span style="background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase;">🏆 Talentpool</span>
+                        {% elif s.scholarship_grade == 'General' %}
+                            <span style="background: #d1fae5; color: #065f46; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase;">⭐ General</span>
+                        {% else %}
+                            <span style="background: #f1f5f9; color: #475569; padding: 4px 10px; border-radius: 20px; font-size: 11px;">Regular</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 15px;">
+                        <a href="{{ url_for('entry_marks') }}?roll={{ s.roll_no }}" style="color: #3b82f6; text-decoration: none; font-size: 14px; font-weight: 600;">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

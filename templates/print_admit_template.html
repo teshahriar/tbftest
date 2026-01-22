@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <title>Admit_{{ student.roll_no }}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;700&display=swap');
+        
+        body { font-family: 'Hind Siliguri', sans-serif; margin: 0; padding: 0; background: #fff; color: #000; }
+        
+        .admit-container {
+            width: 190mm; min-height: 135mm; margin: 10mm auto;
+            padding: 8mm; border: 1.5px solid #000; position: relative; box-sizing: border-box;
+        }
+
+        .header {
+            background-color: #d1d5db; display: flex; align-items: center;
+            padding: 12px; border: 1.2px solid #000; margin-bottom: 12px;
+        }
+        .logo { width: 70px; height: 70px; margin-right: 20px; }
+        .header-title { flex-grow: 1; text-align: center; }
+        .org-bn { font-size: 28px; font-weight: bold; margin: 2px 0; }
+        .org-en { font-size: 22px; font-weight: bold; margin: 0; }
+        .reg-no { border: 1px solid #000; padding: 6px; font-size: 13px; background: white; text-align: center; }
+
+        .label-box { 
+            text-align: center; border: 1px solid #000; width: 100px; 
+            margin: 5px auto 15px; font-weight: bold; background: #f3f4f6; padding: 4px; font-size: 16px;
+        }
+
+        .main-content { display: flex; justify-content: space-between; }
+        .info-table { width: 72%; border-collapse: collapse; }
+        .info-table td { padding: 5px 0; font-size: 16px; vertical-align: top; }
+        .info-table td.label { font-weight: bold; width: 140px; }
+
+        .photo-area { width: 25%; text-align: right; }
+        .photo-box { 
+            width: 125px; height: 145px; border: 1px solid #000; 
+            margin-left: auto; display: flex; align-items: center; justify-content: center;
+            font-size: 18px; color: #333; background: #fafafa;
+        }
+        .sig-box { 
+            width: 125px; height: 55px; border: 1px solid #000; 
+            margin: 15px 0 0 auto; display: flex; align-items: center; justify-content: center;
+            font-size: 14px; background: #fafafa;
+        }
+
+        .instructions { border: 2px solid #000; margin-top: 25px; padding: 10px; }
+        .ins-title { text-align: center; font-weight: bold; border-bottom: 1.5px solid #000; margin-bottom: 8px; display: block; }
+        .ins-list { margin: 0; padding-left: 22px; font-size: 13px; line-height: 1.6; }
+
+        .footer-sig { text-align: right; margin-top: 50px; }
+        .sig-line { border-top: 1.5px solid #000; width: 220px; display: inline-block; text-align: center; font-size: 14px; padding-top: 5px; font-weight: bold; }
+
+        @media print {
+            body { background: white; }
+            .admit-container { margin: 0; width: 100%; border: 1.5px solid #000; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body onload="window.print()">
+
+    <div class="admit-container">
+<div class="main-content">
+    <table class="info-table">
+        <tr><td class="label">রোল নং</td><td>: {{ student.roll_no }}</td></tr>
+        <tr><td class="label">রেজি. নং</td><td>: {{ student.reg_no }}</td></tr>
+        
+        <tr><td class="label">শিক্ষার্থীর নাম</td><td>: {{ student.name_bn }}</td></tr>
+        <tr><td class="label">পিতার নাম</td><td>: {{ student.father_bn }}</td></tr>
+        <tr><td class="label">মাতার নাম</td><td>: {{ student.mother_bn }}</td></tr>
+        
+        <tr><td class="label">শ্রেণী</td><td>: {{ student.exam_name }}</td></tr> 
+        <tr><td class="label">শিক্ষা প্রতিষ্ঠান</td><td>: {{ student.institute_bn }}</td></tr>
+        
+        <tr><td class="label">পরীক্ষার কেন্দ্র</td><td>: {{ student.center_code }}</td></tr>
+        
+        <tr><td class="label">পরীক্ষার তারিখ</td><td>: ...........................................</td></tr>
+        <tr><td class="label">সময়</td><td>: ...........................................</td></tr>
+    </table>
+
+    <div class="photo-area">
+        <div class="photo-box">
+            {% if student.photo and student.photo != 'default_photo.png' %}
+                <img src="{{ url_for('static', filename='uploads/' + student.photo) }}" style="width:100%; height:100%; object-fit:cover;">
+            {% else %}
+                Photo
+            {% endif %}
+        </div>
+        <div class="sig-box">
+            {% if student.signature and student.signature != 'default_sig.png' %}
+                <img src="{{ url_for('static', filename='uploads/' + student.signature) }}" style="width:100%; height:100%; object-fit:contain;">
+            {% else %}
+                Signature
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

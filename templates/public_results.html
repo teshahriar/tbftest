@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Search Scholarship Results | TBF{% endblock %}
+
+{% block extra_css %}
+<style>
+    .container { max-width: 650px; margin: 40px auto; padding: 0 20px; }
+    
+    /* Search Box Styles */
+    .search-section { 
+        background: var(--white); padding: 40px; border-radius: 20px; 
+        box-shadow: 0 15px 35px rgba(0,0,0,0.05); text-align: center; border: 1px solid #e2e8f0;
+    }
+    .search-group { margin-top: 25px; }
+    .search-input { 
+        width: 100%; max-width: 350px; padding: 15px 20px; border: 2px solid #e2e8f0; 
+        border-radius: 12px; font-size: 18px; font-weight: 600; outline: none;
+        transition: 0.3s; text-align: center;
+    }
+    .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
+
+    /* The "Enter" Button */
+    .btn-submit { 
+        background: var(--primary); color: #B2BEB5; border: none; padding: 15px 40px; 
+        border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer;
+        margin-top: 15px; transition: 0.2s; width: 100%; max-width: 350px;
+        text-transform: uppercase; letter-spacing: 1px;
+    }
+    .btn-submit:hover { background: #334155; transform: translateY(-2px); }
+
+    /* Result Card Styles */
+    .result-card { 
+        background: var(--white); margin-top: 40px; border-radius: 24px; overflow: hidden; 
+        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); border: 1px solid #e2e8f0;
+        animation: fadeInUp 0.6s ease-out;
+    }
+    .result-header { background: var(--primary); color: white; padding: 35px; text-align: center; }
+    .grade-text { font-size: 26px; font-weight: 800; color: #fbbf24; margin-top: 10px; }
+
+    .score-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 25px; background: #f8fafc; }
+    .score-box { background: white; padding: 20px; border-radius: 15px; text-align: center; border: 1px solid #edf2f7; }
+    .score-box small { color: #94a3b8; font-weight: 700; text-transform: uppercase; font-size: 11px; display: block; margin-bottom: 5px; }
+    .score-box span { font-size: 22px; font-weight: 800; color: var(--primary); }
+
+    /* Error Guide */
+    .guide-card { background: #fff1f2; border: 1px solid #fecdd3; padding: 30px; border-radius: 20px; margin-top: 30px; color: #9f1239; }
+
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    
+    @media print {
+        .no-print { display: none !important; }
+        .result-card { margin-top: 0; box-shadow: none; border: 3px solid #000; }
+        .container { max-width: 100%; padding: 0; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="search-section no-print">
+        <i class="fas fa-graduation-cap" style="font-size: 40px; color: var(--accent); margin-bottom: 15px;"></i>
+        <h1 style="margin:0; font-size: 28px;">Student Results 2026</h1>
+        <p style="color: #64748b;">Enter your examination roll number to verify your score.</p>
+        
+        <form method="POST" class="search-group">
+            <input type="text" name="roll_no" class="search-input" placeholder="Roll Number" required autofocus>
+            <br>
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-search"></i> Find Result
+            </button>
+        </form>
+    </div>
+
+    {% if searched %}
+        {% if student %}
+            <div class="result-card">
+                <div class="result-header">
+                    <p style="text-transform: uppercase; letter-spacing: 3px; font-size: 11px; opacity: 0.7; margin-bottom: 8px;">Academic Record</p>
+                    <h2 style="margin:0; font-size: 30px;">{{ student.name_en }}</h2>
+                    <p style="font-size: 16px; margin: 10px 0 0; opacity: 0.9;">
+                        Roll: <b>{{ student.roll_no }}</b> &nbsp;|&nbsp; Class: <b>{{ student.class }}</b>
+                    </p>
+                    <div class="grade-text">
+                        {% if student.scholarship_grade == 'Talentpool' %}🏆 Talentpool Merit
+                        {% elif student.scholarship_grade == 'General' %}⭐ General Merit
+                        {% elif student.scholarship_grade == 'Suveccha' %}🎁 Suveccha Award
+                        {% else %}✨ Passed Successfully{% endif %}
+                    </div>
+                </div>
+
+                <div style="padding: 30px;">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 800;">National Merit Rank</span><br>
+                        <span style="font-size: 48px; font-weight: 900; color: var(--primary);">#{{ rank }}</span>
+                    </div>
+
+                    <div class="score-row">
+                        <div class="score-box"><small>Bangla</small><span>{{ student.marks.bangla }}</span></div>
+                        <div class="score-box"><small>English</small><span>{{ student.marks.english }}</span></div>
+                        <div class="score-box"><small>Mathematics</small><span>{{ student.marks.math }}</span></div>
+                        <div class="score-box"><small>General Science</small><span>{{ student.marks.gk }}</span></div>
+                    </div>
+
+                    <div style="margin-top: 20px; padding: 25px; background: var(--primary); color: white; border-radius: 16px; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 600; letter-spacing: 1px;">AGGREGATE TOTAL</span>
+                        <span style="font-size: 32px; font-weight: 900; color: var(--accent);">{{ student.marks.total }}</span>
+                    </div>
+
+                    <p style="text-align: center; font-size: 12px; color: #94a3b8; margin-top: 25px; line-height: 1.6;">
+                        This marksheet is valid for online verification only. <br> 
+                        Official certificates are issued by the TBF Foundation Board.
+                    </p>
+                </div>
+            </div>
+
+            <button onclick="window.print()" class="btn-submit no-print" style="background: var(--accent); margin-top: 20px; width: 100%; max-width: none;">
+                <i class="fas fa-file-pdf"></i> Download Official Marksheet
+            </button>
+
+        {% else %}
+            <div class="guide-card">
+                <h3 style="margin-top:0;"><i class="fas fa-exclamation-triangle"></i> Record Not Found</h3>
+                <p>We couldn't locate a result for the roll number provided. Please check the following:</p>
+                <ul style="font-size: 14px; line-height: 2;">
+                    <li>Ensure you are using the <b>6-digit Roll Number</b> from your Admit Card.</li>
+                    <li>Check if your <b>Registration Payment</b> was successfully verified.</li>
+                    <li>Results for <b>Class 3 and 4</b> might be published in the second phase.</li>
+                </ul>
+                <hr style="border: 0; border-top: 1px solid #fecdd3; margin: 20px 0;">
+                <p style="font-size: 13px;"><b>Support:</b> Contact center secretary or call 01XXX-XXXXXX.</p>
+                <a href="/results" style="color: #9f1239; font-weight: 800; text-decoration: none; font-size: 14px;">
+                    <i class="fas fa-redo"></i> CLICK HERE TO TRY AGAIN
+                </a>
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}
