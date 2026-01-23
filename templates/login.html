@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Student Login | TBF{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    .login-wrapper {
+        display: flex; justify-content: center; align-items: center;
+        min-height: 80vh; background: #f4f7f6; padding: 20px;
+    }
+    .login-card {
+        width: 100%; max-width: 400px; background: #FFFFFF;
+        border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        border-top: 6px solid #2c3e50; overflow: hidden;
+    }
+    .login-header { padding: 30px 20px 10px; text-align: center; }
+    .login-header img { height: 80px; margin-bottom: 10px; }
+    .login-body { padding: 30px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #4a5568; font-size: 0.85rem; }
+    .form-control {
+        width: 100%; padding: 12px 15px; border: 1px solid #e2e8f0;
+        border-radius: 6px; font-size: 1rem; box-sizing: border-box;
+    }
+    .form-control:focus { border-color: #3498db; outline: none; box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15); }
+    .btn-login {
+        width: 100%; background: #2c3e50; color: white; padding: 14px;
+        border: none; border-radius: 6px; font-weight: 700; cursor: pointer;
+        transition: 0.3s; margin-top: 10px;
+    }
+    .btn-login:hover { background: #1a252f; transform: translateY(-1px); }
+    .login-footer { text-align: center; padding: 20px; background: #f8fafc; font-size: 0.9rem; border-top: 1px solid #f1f5f9; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-wrapper">
+    <div class="login-card">
+        <div class="login-header">
+            <img src="https://i.postimg.cc/SsLDX6WZ/Screenshot-2026-01-20-020601-removebg-preview.png" alt="TBF Logo">
+            <h2>Student Login</h2>
+        </div>
+        <div class="login-body">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div style="padding: 10px; margin-bottom: 15px; border-radius: 5px; background: {% if category == 'danger' %}#f8d7da{% else %}#d4edda{% endif %}; color: {% if category == 'danger' %}#721c24{% else %}#155724{% endif %}; font-size: 0.85rem;">
+                    {{ message }}
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('login') }}" method="POST">
+                <div class="form-group">
+                    <label><i class="fas fa-id-card"></i> Roll Number</label>
+                    <input type="text" name="roll" class="form-control" placeholder="Enter Roll Number" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" name="password" class="form-control" placeholder="Enter Password" required>
+                </div>
+                <button type="submit" class="btn-login">Login to Dashboard</button>
+            </form>
+        </div>
+        <div class="login-footer">
+            New Student? <a href="/apply" style="color: #e74c3c; text-decoration: none; font-weight: bold;">Register Here</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

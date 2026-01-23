@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    /* Highlighting specific styles for the printable admit card */
+    .admit-container {
+        width: 100%;
+        max-width: 800px;
+        margin: 20px auto;
+        background: #E8E5D6;
+        border: 2px solid #000;
+        padding: 20px;
+        color: #000;
+    }
+    .info-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    .info-table td { padding: 6px; border-bottom: 1px dotted rgba(0,0,0,0.1); }
+    .photo-box { width: 150px; height: 170px; border: 1px solid #000; background: #fff; }
+    
+    @media print {
+        nav, footer, .btn-print, .no-print { display: none !important; }
+        body { background: white !important; }
+        .admit-container { margin: 0; border: none; width: 100%; }
+        .container { width: 100% !important; max-width: 100% !important; padding: 0 !important; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="no-print" style="text-align: center; margin: 20px 0;">
+    <button onclick="window.print()" class="btn-next">
+        <i class="fas fa-print"></i> Print Your Admit Card
+    </button>
+</div>
+
+<div class="admit-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px;">
+        <img src="https://i.postimg.cc/SsLDX6WZ/Screenshot-2026-01-20-020601-removebg-preview.png" style="height: 70px;">
+        <div style="text-align: center;">
+            <h1 style="font-size: 22px; margin: 0;">দ্য ব্রিলিয়ান্টস্ ফাউন্ডেশন, বগুড়া</h1>
+            <h2 style="font-size: 18px; margin: 0;">The Brilliants Foundation, Bogura</h2>
+        </div>
+        <div style="border: 1px solid #000; padding: 5px; background: #fff; text-align: center; font-size: 11px;">
+            Reg No: <strong>S-9759/09</strong>
+        </div>
+    </div>
+
+    <div style="text-align: center; font-weight: bold; margin: 15px 0; text-decoration: underline;">ADMIT CARD (প্রবেশ পত্র)</div>
+
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1;">
+            <table class="info-table">
+                <tr><td><strong>Roll No</strong></td><td>: {{ student.roll_no }}</td></tr>
+                <tr><td><strong>Registration No</strong></td><td>: {{ student.reg_no }}</td></tr>
+                <tr><td><strong>Student Name</strong></td><td>: {{ student.name_en }}</td></tr>
+                <tr><td><strong>Father's Name</strong></td><td>: {{ student.father_en }}</td></tr>
+                <tr><td><strong>Institute</strong></td><td>: {{ student.institute_en }}</td></tr>
+                <tr><td><strong>Section</strong></td><td>: {{ student.section or 'General' }}</td></tr>
+                <tr><td><strong>Exam Center</strong></td><td>: {{ student.center_name }}</td></tr>
+                <tr><td><strong>Date & Time</strong></td><td>: 20 Jan 2026, 10:00 AM</td></tr>
+            </table>
+        </div>
+        
+        <div style="width: 160px; text-align: center;">
+            <div class="photo-box">
+                <img src="{{ url_for('static', filename='uploads/' + student.photo) }}" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <div style="height: 50px; border: 1px solid #000; background: #fff; margin-top: 10px;">
+                <img src="{{ url_for('static', filename='uploads/' + student.signature) }}" style="max-height: 100%; width: auto;">
+            </div>
+            <p style="font-size: 10px;">Student Signature</p>
+        </div>
+    </div>
+
+    <div style="margin-top: 20px; padding: 10px; border: 1px solid #000; background: #fff;">
+        <p style="font-weight: bold; text-decoration: underline; font-size: 14px;">Instructions:</p>
+        <ol style="font-size: 12px; margin-top: 5px;">
+            <li>Bring this admit card to the exam hall.</li>
+            <li>Arrive at the center at least 30 minutes before the start time.</li>
+            <li>No electronic devices are allowed inside the hall.</li>
+        </ol>
+    </div>
+
+    <div style="margin-top: 50px; text-align: right;">
+        <div style="display: inline-block; text-align: center; border-top: 1px solid #000; width: 180px;">
+            Controller of Examinations
+        </div>
+    </div>
+</div>
+{% endblock %}
