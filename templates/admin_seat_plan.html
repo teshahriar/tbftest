@@ -1,0 +1,211 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+<style>
+    /* Printing Logic: এ৪ সাইজ নিশ্চিত করার জন্য */
+    @media print {
+        .sidebar, .top-nav, .no-print, .admin-filter-card { display: none !important; }
+        .main-wrapper, .scroll-area { overflow: visible !important; display: block !important; margin: 0 !important; padding: 0 !important; }
+        body { background: white !important; margin: 0; padding: 0; }
+        
+        .print-container { 
+            border: none !important; 
+            margin: 0 auto !important; 
+            box-shadow: none !important;
+            page-break-after: always;
+        }
+    }
+
+    /* A4 Layout: ২ কলাম এবং ৫টি রো (প্রতি পেজে ১০টি স্লিপ) */
+    .print-container {
+        width: 210mm;
+        min-height: 290mm;
+        padding: 8mm;
+        margin: 20px auto;
+        background: white;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-auto-rows: 54mm; 
+        gap: 6mm;
+        box-sizing: border-box;
+    }
+
+    .seat-slip {
+        border: 1.5px solid #1B2631;
+        display: flex;
+        flex-direction: column;
+        height: 52mm;
+        box-sizing: border-box;
+        overflow: hidden;
+        position: relative;
+        background: #fff;
+    }
+
+    /* অফিসিয়াল লোগো এবং হেডার */
+    .slip-top-header {
+        display: flex;
+        align-items: center;
+        background: #f8fafc;
+        padding: 5px 10px;
+        border-bottom: 1.5px solid #1B2631;
+        gap: 10px;
+    }
+
+    .foundation-logo {
+        width: 35px;
+        height: 35px;
+        object-fit: contain;
+    }
+
+    .header-text { flex: 1; text-align: left; }
+    .header-text h2 {
+        margin: 0;
+        font-size: 13px;
+        font-weight: 800;
+        color: #1B2631;
+        letter-spacing: 0.2px;
+    }
+
+    .header-text p {
+        margin: 0;
+        font-size: 9px;
+        font-weight: 600;
+        color: #b45309;
+        text-transform: uppercase;
+    }
+
+    .slip-content {
+        display: flex;
+        padding: 8px;
+        gap: 12px;
+        flex: 1;
+        align-items: flex-start;
+    }
+
+    /* স্টুডেন্ট ফটো ফ্রেম */
+    .photo-frame { flex: 0 0 75px; text-align: center; }
+    .photo-frame img {
+        width: 75px;
+        height: 90px;
+        object-fit: cover;
+        border: 1px solid #1B2631;
+        padding: 2px;
+        background: #fff;
+    }
+
+    /* ইনফরমেশন ফিল্ড */
+    .info-fields { flex: 1; display: flex; flex-direction: column; }
+    .student-name-main {
+        font-size: 14px;
+        font-weight: 900;
+        color: #1B2631;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 2px;
+    }
+
+    .info-row {
+        font-size: 10px;
+        line-height: 1.6;
+        color: #334155;
+        display: flex;
+    }
+
+    .info-row span { font-weight: 700; width: 65px; color: #64748b; }
+    .info-row b { color: #0f172a; }
+
+    /* নিচের বার (রোল ও ক্লাস) */
+    .status-bar {
+        margin-top: auto;
+        display: flex;
+        background: #1B2631;
+        color: white;
+        padding: 4px 10px;
+        justify-content: space-between;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .status-bar .roll-tag { color: #fbbf24; font-size: 13px; }
+
+    /* অ্যাডমিন প্যানেল UI */
+    .admin-filter-card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+</style>
+
+<div class="no-print">
+    <div class="admin-filter-card">
+        <h3 style="margin: 0 0 15px 0;"><i class="fas fa-print"></i> Generate Official Seat Plan</h3>
+        <form method="GET" style="display: flex; gap: 15px; flex-wrap: wrap;">
+            <select name="center" style="padding: 10px; border-radius: 5px; border: 1px solid #ddd; min-width: 200px;">
+                <option value="">-- Select Center --</option>
+                {% for c in all_centers %}
+                <option value="{{ c }}" {{ 'selected' if request.args.get('center') == c }}>{{ c }}</option>
+                {% endfor %}
+            </select>
+            <select name="class" style="padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
+                <option value="">-- All Classes --</option>
+                {% for c in ['3','4','5','6','7','8','9'] %}
+                <option value="{{c}}" {{ 'selected' if request.args.get('class') == c }}>Class {{c}}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" style="background: #1B2631; color: white; padding: 10px 25px; border: none; border-radius: 5px; cursor: pointer;">Filter</button>
+            <button type="button" onclick="window.print()" style="background: #059669; color: white; padding: 10px 25px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">Print (A4)</button>
+        </form>
+    </div>
+</div>
+
+<div class="print-container">
+    {% for s in students %}
+    <div class="seat-slip">
+        <div class="slip-top-header">
+            <img class="foundation-logo" src="https://i.postimg.cc/SsLDX6WZ/Screenshot-2026-01-20-020601-removebg-preview.png" alt="Logo">
+            <div class="header-text">
+                <h2>THE BRILLIANTS FOUNDATION, BOGURA</h2>
+                <p>Scholarship Examination - 2026</p>
+            </div>
+        </div>
+        
+        <div class="slip-content">
+            <div class="photo-frame">
+                <img src="{{ url_for('static', filename='uploads/' + (s.photo if s.photo else 'default.png')) }}" alt="Candidate">
+            </div>
+
+            <div class="info-fields">
+                <div class="student-name-main">{{ s.name_en|upper if s.name_en else 'N/A' }}</div>
+                
+                <div class="info-row">
+                    <span>Institution:</span> 
+                    <b>{{ (s.institute_en[:30] if s.institute_en else 'N/A') }}</b>
+                </div>
+                
+                <div class="info-row">
+                    <span>Reg No:</span> 
+                    <b>{{ s.reg_no if s.reg_no else 'N/A' }}</b>
+                </div>
+                
+                <div class="info-row">
+                    <span>Center:</span> 
+                    <b>{{ s.center_code if s.center_code else 'N/A' }}</b>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <span>CLASS: {{ s.student_class if s.student_class else 'N/A' }}</span>
+            <span class="roll-tag">ROLL: {{ s.roll_no if s.roll_no else 'N/A' }}</span>
+        </div>
+    </div>
+
+    {# প্রতি ১০টি স্লিপ পর পর পেজ ব্রেক #}
+    {% if loop.index % 10 == 0 and not loop.last %}
+        </div><div class="print-container">
+    {% endif %}
+    
+    {% else %}
+    <div style="grid-column: span 2; text-align: center; padding: 100px; color: #999;" class="no-print">
+        No verified candidates found. Please filter to load data.
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
