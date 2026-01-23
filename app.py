@@ -1,38 +1,137 @@
 import os
 import random
 import string
-from flask import Flask, render_template, request, redirect, url_for, session, send_file, flash, jsonify
+import datetime
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_pymongo import PyMongo
 from werkzeug.utils import secure_filename
-from reportlab.pdfgen import canvas
-from io import BytesIO
 from bson.objectid import ObjectId
-from flask import render_template
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.secret_key = "admission_portal_2026_secure_key"
 
-# --- MongoDB Atlas Configuration ---
+# MongoDB Config (tlsAllowInvalidCertificates=true রাখা হয়েছে কানেকশন নিশ্চিত করতে)
 app.config["MONGO_URI"] = "mongodb+srv://shahriarkabircricket30:cDTl3F4ypWyjFGPP@earnify.mxftebt.mongodb.net/AdmissionDB?retryWrites=true&w=majority&tlsAllowInvalidCertificates=true"
-app.config['UPLOAD_FOLDER'] = 'static/uploads/'
+app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
-# Ensure upload directory exists
+# ফোল্ডার চেক
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
-    os.makedirs(app.config['UPLOAD_FOLDER'])
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 mongo = PyMongo(app)
 
-# --- Helper: Generate Numbers ---
 def generate_numbers():
     reg = ''.join(random.choices(string.digits, k=8))
     roll = ''.join(random.choices(string.digits, k=5))
     return reg, roll
 
-# --- Routes ---
-
 @app.route('/')
 def landing():
     return render_template('landing.html')
+
+@app.route('/apply', methods=['GET', 'POST'])
+def apply():
+    if request.method == 'POST':
+        try:
+            # ১. ফর্ম ডেটা এবং ফাইল ঠিকঠাক আসছে কি না তা কনসোলে দেখার জন্য (Debugging)
+            print("Request Files:", request.files)
+            print("Request Form:", request.form)
+
+            # ২. পাসওয়ার্ড এবং কনফার্ম পাসওয়ার্ড চেক
+            password = request.form.get('password')
+            confirm_password = request.form.get('confirm_password')
+
+            if not password or password != confirm_password:
+                flash("Passwords do not match or are empty!", "danger")
+                return redirect(request.url)
+
+            # ৩. ফাইল রিসিভ করা (HTML name='photo' এবং name='signature' হতে হবে)
+            photo = request.files.get('photo')
+            sig = request.files.get('signature')
+
+            # ৪. ফাইল ভ্যালিডেশন (সবচেয়ে গুরুত্বপূর্ণ অংশ)
+            # ফাইল যদি None হয় অথবা নাম খালি থাকে তবে এরর দিবে
+            if not photo or photo.filename == '':
+                flash("Photo is missing! Please select a 300x350px image.", "danger")
+                return redirect(request.url)
+            
+            if not sig or sig.filename == '':
+                flash("Signature is missing! Please select a 300x80px image.", "danger")
+                return redirect(request.url)
+
+            # ৫. রোল ও রেজিস্ট্রেশন নম্বর জেনারেট
+            reg_no, roll_no = generate_numbers()
+
+            # ৬. ফাইলের নাম তৈরি এবং সেভ করা
+            # ফাইলের এক্সটেনশন ধরে রাখা নিরাপদ (.jpg, .png ইত্যাদি)
+            photo_ext = os.path.splitext(photo.filename)[1]
+            sig_ext = os.path.splitext(sig.filename)[1]
+            
+            p_name = secure_filename(f"photo_{roll_no}{photo_ext}")
+            s_name = secure_filename(f"sig_{roll_no}{sig_ext}")
+            
+            # আপলোড ফোল্ডার তৈরি নিশ্চিত করা
+            upload_path = app.config.get('UPLOAD_FOLDER', 'static/uploads')
+            if not os.path.exists(upload_path):
+                os.makedirs(upload_path)
+
+            photo.save(os.path.join(upload_path, p_name))
+            sig.save(os.path.join(upload_path, s_name))
+
+            # ৭. ডাটাবেস অবজেক্ট তৈরি
+            student_data = {
+                "roll_no": str(roll_no),
+                "reg_no": str(reg_no),
+                "student_class": request.form.get('student_class'),
+                "center_code": request.form.get('center_code'),
+                "category": request.form.get('category'),
+                "name_en": request.form.get('name_en'),
+                "father_en": request.form.get('father_en'),
+                "mother_en": request.form.get('mother_en'),
+                "institute_en": request.form.get('institute_en'),
+                "name_bn": request.form.get('name_bn'),
+                "father_bn": request.form.get('father_bn'),
+                "mother_bn": request.form.get('mother_bn'),
+                "institute_bn": request.form.get('institute_bn'),
+                "dob": request.form.get('dob'),
+                "gender": request.form.get('gender'),
+                "section": request.form.get('section', 'N/A'),
+                "religion": request.form.get('religion'),
+                "mobile": request.form.get('mobile'),
+                "password": generate_password_hash(password), 
+                "address_present": {
+                    "village": request.form.get('pre_v'),
+                    "post": request.form.get('pre_p'),
+                    "upazila": request.form.get('pre_t'),
+                    "district": request.form.get('pre_d')
+                },
+                "address_permanent": {
+                    "village": request.form.get('per_v'),
+                    "post": request.form.get('per_p'),
+                    "upazila": request.form.get('per_t'),
+                    "district": request.form.get('per_d')
+                },
+                "photo": p_name,
+                "signature": s_name,
+                "status": "Pending",
+                "verification": False,
+                "applied_at": datetime.datetime.now()
+            }
+
+            # ডাটাবেসে ইনসার্ট
+            mongo.db.students.insert_one(student_data)
+            flash("Application Submitted Successfully!", "success")
+            
+            return render_template("success.html", roll=roll_no, reg=reg_no, mobile=student_data["mobile"])
+
+        except Exception as e:
+            # যেকোনো এরর হলে টার্মিনালে প্রিন্ট হবে
+            print(f"Server Error: {str(e)}")
+            flash(f"System Error: {str(e)}", "danger")
+            return redirect(request.url)
+
+    return render_template("apply.html")
 
 @app.route('/admin/notices')
 def admin_notices():
@@ -63,100 +162,47 @@ def notices():
     all_notices = mongo.db.notices.find().sort("_id", -1)
     return render_template('notices.html', notices=all_notices)
 
-@app.route('/apply', methods=['GET', 'POST'])
-def apply():
-    if request.method == 'POST':
-        # Registration & Roll generation
-        reg_no, roll_no = generate_numbers()
-        
-        # Files (Photo 300x350, Signature 300x80)
-        photo = request.files.get('photo')
-        sig = request.files.get('signature')
-        
-        photo_name = secure_filename(f"photo_{roll_no}.jpg")
-        sig_name = secure_filename(f"sig_{roll_no}.jpg")
-        
-        photo.save(os.path.join(app.config['UPLOAD_FOLDER'], photo_name))
-        sig.save(os.path.join(app.config['UPLOAD_FOLDER'], sig_name))
-
-        # Full Data Mapping based on your provided image
-        student_data = {
-            "exam_name": "Scholarship Exam 2026",
-            "center_code": request.form.get('center_code'),
-            "category": request.form.get('category'),
-            "student_class": request.form.get('student_class'),
-            
-            "name_en": request.form.get('name_en'),
-            "father_en": request.form.get('father_en'),
-            "mother_en": request.form.get('mother_en'),
-            "institute_en": request.form.get('institute_en'),
-            "dob": request.form.get('dob'),
-            "gender": request.form.get('gender'),
-            "mobile": request.form.get('mobile'),
-            
-            "name_bn": request.form.get('name_bn'),
-            "father_bn": request.form.get('father_bn'),
-            "mother_bn": request.form.get('mother_bn'),
-            "institute_bn": request.form.get('institute_bn'),
-            "section": request.form.get('section') if request.form.get('student_class') in ['9','10'] else "N/A",
-            "religion": request.form.get('religion'),
-            "email": request.form.get('email'),
-            
-            "address": {
-                "present": {
-                    "v": request.form.get('pre_v'), "p": request.form.get('pre_p'),
-                    "t": request.form.get('pre_t'), "d": request.form.get('pre_d')
-                },
-                "permanent": {
-                    "v": request.form.get('per_v'), "p": request.form.get('per_p'),
-                    "t": request.form.get('per_t'), "d": request.form.get('per_d')
-                }
-            },
-            
-            "roll_no": str(roll_no),
-            "reg_no": str(reg_no),
-            "photo": photo_name,
-            "signature": sig_name,
-            "admit_approved": False,
-            "status": "Pending"
-        }
-        
-        mongo.db.students.insert_one(student_data)
-        return render_template('success.html', reg=reg_no, roll=roll_no)
-
-    return render_template('apply.html')
+from werkzeug.security import check_password_hash
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        # Safely get the values from the form
         roll = request.form.get('roll')
         pw = request.form.get('password')
 
-        # 1. Validation Check: Ensure data isn't missing
         if not roll or not pw:
             flash("Please enter both Roll and Password.", "danger")
             return redirect(url_for('login'))
 
-        # 2. Database Query: Check for both string and integer roll numbers
-        # This prevents "Not Login" issues caused by data type mismatches
+        # ১. শুধু রোল নম্বর দিয়ে ইউজারকে খুঁজুন (পাসওয়ার্ড ছাড়া)
+        # কারণ পাসওয়ার্ড হ্যাশ করা থাকলে কুয়েরিতে সরাসরি চেক করা যায় না
         user = mongo.db.students.find_one({
             "$or": [
                 {"roll_no": roll}, 
                 {"roll_no": int(roll) if roll.isdigit() else None}
-            ],
-            "password": pw
+            ]
         })
         
+        # ২. ইউজার পাওয়া গেলে পাসওয়ার্ড চেক করুন
         if user:
-            # 3. Establish Session
-            session.permanent = True
-            session['user_id'] = str(user['_id'])
-            flash("Welcome back!", "success")
-            return redirect(url_for('dashboard'))
+            # যদি রেজিস্ট্রেশনের সময় generate_password_hash ব্যবহার করে থাকেন:
+            is_valid = check_password_hash(user['password'], pw)
+            
+            # যদি রেজিস্ট্রেশনের সময় সাধারণ টেক্সটে সেভ করে থাকেন, তবে নিচের লাইনটি ব্যবহার করুন:
+            # is_valid = (user['password'] == pw)
+
+            if is_valid:
+                session.permanent = True
+                session['user_id'] = str(user['_id'])
+                session['roll'] = user['roll_no'] # ড্যাশবোর্ডের জন্য রোল সেভ রাখা ভালো
+                flash("Welcome back!", "success")
+                return redirect(url_for('dashboard'))
+            else:
+                flash("Invalid Password.", "danger")
         else:
-            flash("Invalid Roll Number or Password.", "danger")
-            return redirect(url_for('login'))
+            flash("Roll Number not found.", "danger")
+            
+        return redirect(url_for('login'))
             
     return render_template('login.html')
 
@@ -330,7 +376,8 @@ def admin_dashboard():
     if center_filter:
         query["center_code"] = center_filter
     if class_filter:
-        query["class"] = class_filter
+        query["student_class"] = class_filter
+
 
     # --- STEP 3: Fetch Data ---
     students = list(mongo.db.students.find(query).sort("roll_no", 1))
@@ -397,7 +444,7 @@ def seat_plan():
     if center: 
         query["center_code"] = center
     if student_class: 
-        query["class"] = student_class
+        query["student_class"] = student_class
     if gender: 
         query["gender"] = gender
 
@@ -483,7 +530,7 @@ def manage_results():
     # 2. Build Query - Only show students who have the 'marks' field
     query = {"marks": {"$exists": True}}
     if f_grade: query["scholarship_grade"] = f_grade
-    if f_class: query["class"] = f_class
+    if f_class: query["student_class"] = f_class
     if f_center: query["center_code"] = f_center
     if f_school: query["institute_bn"] = f_school
 
