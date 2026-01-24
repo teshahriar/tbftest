@@ -7,13 +7,14 @@ from flask_pymongo import PyMongo
 from werkzeug.utils import secure_filename
 from bson.objectid import ObjectId
 from werkzeug.security import generate_password_hash, check_password_hash
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = "admission_portal_2026_secure_key"
-
-# MongoDB Config (tlsAllowInvalidCertificates=true রাখা হয়েছে কানেকশন নিশ্চিত করতে)
-app.config["MONGO_URI"] = "mongodb+srv://shahriarkabircricket30:cDTl3F4ypWyjFGPP@earnify.mxftebt.mongodb.net/AdmissionDB?retryWrites=true&w=majority&tlsAllowInvalidCertificates=true"
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
+app.secret_key = os.getenv("SECRET_KEY")
+app.config["MONGO_URI"] = os.getenv("MONGO_URI")
+app.config['UPLOAD_FOLDER'] = os.getenv("UPLOAD_FOLDER", "static/uploads")
 
 # ফোল্ডার চেক
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
@@ -312,7 +313,7 @@ def admin_login():
         pw = request.form.get('password')
         
         # Hardcoded credentials as requested
-        if user == "tbf123321" and pw == "123321":
+        if os.getenv("ADMIN_USER") and pw == os.getenv("ADMIN_PASS"):
             session['admin_logged_in'] = True
             flash("Welcome back, Admin!", "success")
             return redirect(url_for('admin_dashboard'))
