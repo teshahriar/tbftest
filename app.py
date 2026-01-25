@@ -765,6 +765,47 @@ def delete_institute(inst_id):
     
     return redirect(url_for('manage_institutions'))
 
+@app.route('/admin/serial-allocation', methods=['GET', 'POST'])
+def serial_allocation():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
+    if request.method == 'POST':
+        try:
+            target_class = request.form.get('student_class')
+            start_roll = int(request.form.get('start_roll'))
+            start_reg = int(request.form.get('start_reg'))
+
+            # শুধুমাত্র ওই ক্লাসের ভেরিফাইড স্টুডেন্টদের আনা (আগের রোলে সর্ট করা)
+            students = list(mongo.db.students.find({
+                "student_class": target_class,
+                "status": "Verified"
+            }).sort("roll_no", 1))
+
+            if not students:
+                flash(f"No verified students found for Class {target_class}", "warning")
+                return redirect(request.url)
+
+            # সিরিয়াল আপডেট লজিক
+            for index, student in enumerate(students):
+                new_roll = start_roll + index
+                new_reg = start_reg + index
+                
+                mongo.db.students.update_one(
+                    {"_id": student["_id"]},
+                    {"$set": {
+                        "roll_no": str(new_roll),
+                        "reg_no": str(new_reg)
+                    }}
+                )
+
+            flash(f"Successfully updated {len(students)} students of Class {target_class}!", "success")
+            
+        except Exception as e:
+            flash(f"Error: {str(e)}", "danger")
+
+    return render_template('admin_serial.html')
+
 # --- ADMIN LOGOUT ---
 @app.route('/admin/logout')
 def admin_logout():
@@ -773,4 +814,5 @@ def admin_logout():
     return redirect(url_for('admin_login'))
 
 if __name__ == '__main__':
+
     app.run(debug=True)
