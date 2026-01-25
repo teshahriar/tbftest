@@ -177,6 +177,9 @@
             <a href="{{ url_for('manage_institutions') }}" class="{{ 'active' if request.endpoint == 'manage_institutions' }}">
                 <i class="fas fa-university"></i> Manage Institutions
             </a>
+            <a href="{{ url_for('serial_allocation') }}" class="{{ 'active' if request.endpoint == 'serial_allocation' }}">
+                <i class="fas fa-list-ol"></i> Roll & Reg Serial
+            </a>
             <a href="{{ url_for('manage_results') }}" class="{{ 'active' if request.endpoint == 'manage_results' }}">
                 <i class="fas fa-poll"></i> Result Registry
             </a>
@@ -220,4 +223,5 @@
         }
     </script>
 </body>
+
 </html>
