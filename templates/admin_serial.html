@@ -1,0 +1,71 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+<style>
+    .serial-card {
+        max-width: 600px; margin: 50px auto; background: white;
+        padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-weight: 700; margin-bottom: 8px; color: #1e293b; }
+    .form-control { 
+        width: 100%; padding: 12px; border: 2px solid #e2e8f0; 
+        border-radius: 8px; outline: none; transition: 0.3s;
+    }
+    .form-control:focus { border-color: #3b82f6; }
+    .btn-generate {
+        width: 100%; background: #1e293b; color: white; padding: 15px;
+        border: none; border-radius: 8px; font-weight: 700; cursor: pointer;
+        font-size: 16px; transition: 0.3s;
+    }
+    .btn-generate:hover { background: #334155; }
+    .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 600; }
+    .alert-success { background: #dcfce7; color: #166534; }
+    .alert-danger { background: #fee2e2; color: #991b1b; }
+</style>
+
+<div class="admin-container">
+    <div class="serial-card">
+        <h2 style="text-align: center; margin-bottom: 10px;">Serial Roll Generator</h2>
+        <p style="text-align: center; color: #64748b; margin-bottom: 30px;">Generate sequential Roll & Reg numbers for a specific class.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="form-group">
+                <label>Select Class</label>
+                <select name="student_class" class="form-control" required>
+                    <option value="">-- Choose Class --</option>
+                    {% for c in ["3","4","5","6","7","8","9","10"] %}
+                    <option value="{{c}}">Class {{c}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Starting Roll Number</label>
+                <input type="number" name="start_roll" class="form-control" placeholder="e.g. 3001" required>
+            </div>
+
+            <div class="form-group">
+                <label>Starting Registration Number</label>
+                <input type="number" name="start_reg" class="form-control" placeholder="e.g. 26001" required>
+            </div>
+
+            <button type="submit" class="btn-generate" onclick="return confirm('Are you sure? This will overwrite existing Roll and Reg numbers for this class!')">
+                <i class="fas fa-sync"></i> Update All Students Serial
+            </button>
+        </form>
+        
+        <div style="margin-top: 20px; font-size: 12px; color: #ef4444; text-align: center;">
+            * This action will only apply to <b>Verified</b> students.
+        </div>
+    </div>
+</div>
+{% endblock %}
