@@ -1,0 +1,137 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+<style>
+    .serial-wrapper {
+        padding: 30px;
+        background: #f4f7f6;
+        min-height: 90vh;
+    }
+    .config-card {
+        max-width: 750px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+    .card-title-bar {
+        background: #1e293b;
+        color: white;
+        padding: 20px;
+        text-align: center;
+    }
+    .card-body { padding: 40px; }
+    
+    .input-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+    }
+    .input-group { margin-bottom: 20px; }
+    .input-group.full { grid-column: span 2; }
+    
+    label {
+        font-weight: 700;
+        color: #475569;
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+    .form-input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 15px;
+        outline: none;
+        transition: 0.3s;
+    }
+    .form-input:focus { border-color: #3b82f6; }
+    
+    .btn-submit {
+        width: 100%;
+        background: #3b82f6;
+        color: white;
+        padding: 16px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-top: 10px;
+    }
+    .btn-submit:hover { background: #2563eb; transform: translateY(-2px); }
+
+    .alert {
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-weight: 600;
+        text-align: center;
+    }
+    .alert-success { background: #dcfce7; color: #166534; }
+    .alert-warning { background: #fef9c3; color: #854d0e; }
+    .alert-danger { background: #fee2e2; color: #991b1b; }
+</style>
+
+<div class="serial-wrapper">
+    <div class="config-card">
+        <div class="card-title-bar">
+            <h2 style="margin:0;">Bulk Serial Allocation</h2>
+            <p style="margin:5px 0 0; opacity:0.8; font-size:14px;">Update student records sequentially</p>
+        </div>
+
+        <div class="card-body">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label>Target Class</label>
+                        <select name="student_class" class="form-input" required>
+                            <option value="">-- Select Class --</option>
+                            {% for c in ["3","4","5","6","7","8","9","10"] %}
+                            <option value="{{c}}">Class {{c}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Select Institution</label>
+                        <select name="institution" class="form-input">
+                            <option value="">-- All Institutions --</option>
+                            {% for inst_name in institutions %}
+                            <option value="{{ inst_name }}">{{ inst_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Starting Roll No</label>
+                        <input type="number" name="start_roll" class="form-input" placeholder="e.g. 1001" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Starting Reg No</label>
+                        <input type="number" name="start_reg" class="form-input" placeholder="e.g. 26001" required>
+                    </div>
+
+                    <div class="input-group full">
+                        <button type="submit" class="btn-submit" onclick="return confirm('এটি ফিল্টার করা সকল ছাত্রের রোল ও রেজি নম্বর পরিবর্তন করবে। আপনি কি নিশ্চিত?')">
+                            Generate Serial & Update Database
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
