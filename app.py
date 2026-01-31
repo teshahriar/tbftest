@@ -33,13 +33,6 @@ def generate_numbers():
 def landing():
     return render_template('landing.html')
 
-import requests
-import base64
-import os
-from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, flash
-from werkzeug.security import generate_password_hash
-
 # ImgBB আপলোড ফাংশন
 def upload_to_imgbb(file):
     api_key = "0bb1747f7045ccee9cc03c792b828a67"
@@ -943,4 +936,5 @@ def admin_logout():
     return redirect(url_for('admin_login'))
 
 if __name__ == '__main__':
+
     app.run(debug=True)
