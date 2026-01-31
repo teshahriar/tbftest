@@ -10,6 +10,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 from datetime import datetime
 import base64
+import requests
 
 load_dotenv()
 
@@ -938,3 +939,4 @@ def admin_logout():
 if __name__ == '__main__':
 
     app.run(debug=True)
+
