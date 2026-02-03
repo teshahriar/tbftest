@@ -52,19 +52,18 @@
             from { opacity:0; transform: translateY(-8px); }
             to { opacity:1; transform: translateY(0); }
         }
+        .tesla-link {
+            text-decoration: none; /* Removes underline */
+            color: #e31937;        /* Tesla-style red */
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            transition: 0.3s;
+        }
 
-    .tesla-link {
-    text-decoration: none; /* Removes underline */
-    color: #e31937;        /* Tesla-style red */
-    font-weight: bold;
-    font-family: Arial, sans-serif;
-    transition: 0.3s;
-}
-
-.tesla-link:hover {
-    color: #000000;        /* Changes color on hover */
-    text-decoration: underline;
-}
+        .tesla-link:hover {
+            color: #000000;        /* Changes color on hover */
+            text-decoration: underline;
+        }
     </style>
 
     {% block extra_css %}{% endblock %}
@@ -119,8 +118,8 @@
         <p><strong>THE BRILLIANTS FOUNDATION, BOGURA</strong></p>
         <p>&copy; 2026 Admission Portal. All Rights Reserved.</p>
         <a href="https://teslaxtech.onrender.com/" class="tesla-link">
-  Made with TeslaXTech
-</a>
+            Made with TeslaXTech
+        </a>
     </footer>
 
     <!-- ===== SCRIPTS ===== -->
@@ -148,4 +147,3 @@
     {% block extra_js %}{% endblock %}
 </body>
 </html>
-
